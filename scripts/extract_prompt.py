@@ -4,6 +4,7 @@ from data.prompt_leakage import PromptLeakageSysPrompts
 from attacks.PromptLeakage.prompt_leakage import PromptLeakage
 from models.hf_models import HFModels
 from models.chatgpt import ChatGPT
+from models.open_webui import OpenWebUI
 from models.togetherai import TogetherAIModels
 import argparse
 from collections import defaultdict
@@ -38,6 +39,7 @@ parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str
     "meta-llama/Llama-2-7b-chat-hf",
     "meta-llama/Llama-2-13b-chat-hf",
     "meta-llama/Llama-2-70b-chat-hf",
+    "llama3.2:1b",
     # not support system prompt
     # "mistralai/Mistral-7B-Instruct-v0.1",
     # "mistralai/Mixtral-8x7B-Instruct-v0.1",
@@ -84,6 +86,17 @@ if 'gpt' in args.model:
 elif 'claude' in args.model:
     from models.claude import ClaudeLLM
     llm = ClaudeLLM(model=args.model)
+elif 'llama' in args.model:
+    api_key = os.getenv("MULLE_KEY")
+    url = os.getenv("MULLE_URL")
+
+    if not api_key:
+        raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")
+
+    if not url:
+        raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
+        
+    llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=2, model_path=url)
 else:
     # export TOGETHER_API_KEY=XXX
     llm = TogetherAIModels(model=args.model, max_attempts=30, max_tokens=2048)

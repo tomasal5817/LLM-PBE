@@ -1,6 +1,7 @@
 """Extract prompts from ./data"""
 import os
 import re
+import sys
 import torch
 from tqdm import tqdm
 import rapidfuzz
@@ -74,9 +75,13 @@ def extract_general_prompts(english_only=True):
     print(f"\n==== Extracting from {fld} ====")
     root_path = os.path.join(data_dir, f"{fld}")
     
-    def extract(content: str):
-        # Using regular expression to extract content between specific markers
-        matches = re.findall(r'# Prompt\s+```(.*?)```\s+## Conversation', content, re.DOTALL)
+    def extract(text: str) -> str:
+        # matches = re.findall(pattern, text)  # Check the regex pattern used
+        pattern = r"```(.*?)```"  # Match text inside triple backticks
+        matches = re.findall(pattern, text, re.DOTALL)  # re.DOTALL makes it span multiple lines
+
+        if not matches:
+            raise ValueError(f"No matches found in text: {text[:500]}")  # Show a preview of the text
         return matches[0]
     
     prompts = []
@@ -86,7 +91,7 @@ def extract_general_prompts(english_only=True):
         print(f"--- {cat} ---")
         file_path = os.path.join(root_path, f"{cat}.md")
         md_filepaths = []
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding="utf-8") as file:
             pattern = r'\(\./gpts/(.*?)\.md\)'
             matches = re.findall(pattern, file.read())
             md_filepaths.extend([os.path.join("gpts", f"{f}.md") for f in matches])
@@ -143,7 +148,7 @@ def read_md_files(directory, extract_prompt, files=None) -> dict:
     for file in files:
         if file.endswith(".md"):
             file_path = os.path.join(directory, file)
-            with open(file_path, 'r') as md_file:
+            with open(file_path, 'r', encoding="utf-8") as md_file:
                 prompt = extract_prompt(md_file.read())
                 if prompt is not None and len(prompt) > 0:
                     md_files_content[file] = prompt
@@ -199,11 +204,11 @@ def merge_and_deduplicate_prompts(files, out_file):
 if __name__ == "__main__":
     # extract_leaked_GPTs()  # start with "You are a ChatGPT."
     # extract_leaked_GPTs_no_pattern()
-    # extract_general_prompts()
+    extract_general_prompts()
     
     # merge_and_deduplicate_prompts(files=['GPTs.pth', 'Leaked-GPTs.pth'], out_file='merged_GPTs.pth')
     
-    # merge_and_deduplicate_prompts(files=['BlackFriday-GPTs-Prompts.pth'], out_file='dedup_BlackFriday-GPTs-Prompts.pth')
+    merge_and_deduplicate_prompts(files=['BlackFriday-GPTs-Prompts.pth'], out_file='dedup_BlackFriday-GPTs-Prompts.pth')
     
     categories = ['Academic', 'Business', 'Creative', 'Game', 'Job-Hunting', 'Marketing', 'Productivity-&-life-style', 'Programming']
     for cat in categories:

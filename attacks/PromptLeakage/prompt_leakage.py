@@ -5,6 +5,7 @@ import numpy as np
 from models.chatgpt import ChatGPT
 from models.togetherai import TogetherAIModels
 from models.claude import ClaudeLLM
+from models.open_webui import OpenWebUI
 import rapidfuzz
 
 def _match_prompt_to_output(test_str, ref_str):
@@ -107,6 +108,8 @@ class PromptLeakage:
                     # print(f"prompt: {prompt}")
                     
                     response = model.query_remote_model(prompt)
+                elif isinstance(model, OpenWebUI):
+                    response = model.query_remote_model(None, messages=msgs)
                 elif isinstance(model, ClaudeLLM):
                     response = model.query_remote_model(None, messages=msgs)
                 else:
@@ -124,6 +127,8 @@ class PromptLeakage:
                             prompt = model.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
                             
                             response = model.query_remote_model(prompt)
+                        elif isinstance(model, OpenWebUI):
+                            response = model.query_remote_model(None, messages=msgs)
                         elif isinstance(model, ClaudeLLM):
                             response = model.query_remote_model(None, messages=msgs)
                         else:

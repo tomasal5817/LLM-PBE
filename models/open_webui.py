@@ -19,8 +19,10 @@ class OpenWebUI(LLMBase):
     def load_model(self):
         pass
         
-    def query_remote_model(self, prompt):
+    def query_remote_model(self, prompt, messages=None):
         n_attempt = 0
+        if messages is None:
+            messages = [{'role': 'user', 'content': prompt}]
         while n_attempt < self.max_attempts:
             try:
                 headers = {
@@ -29,7 +31,7 @@ class OpenWebUI(LLMBase):
                 }
                 payload = {
                     'model': self.model,
-                    'messages': [{'role': 'user', 'content': prompt}]
+                    'messages': messages
                     #'files': [{'type': 'file', 'id': 'test.txt'}]
                 }
                 response = requests.post(self.model_path, headers=headers, json=payload)

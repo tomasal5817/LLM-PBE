@@ -81,7 +81,7 @@ sys_prompts = data.random_select(args.num_test, seed=args.seed)
 print(f"== model: {args.model} ==")
 if 'gpt' in args.model:
     # export OPENAI_API_KEY=XXX
-    api_key = os.getenv("openai_key")
+    api_key = os.getenv("OPENAI_KEY")
 
     if not api_key:
         raise ValueError("Not able to retrieve API Key from environment")

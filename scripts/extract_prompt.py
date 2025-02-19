@@ -33,6 +33,7 @@ parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str
     # "EleutherAI/pythia-2.8b",
     # "EleutherAI/pythia-6.9b",
     # "EleutherAI/pythia-12b",
+    "gpt-4o-mini",
     "gpt-3.5-turbo",
     "gpt-4",
     # together
@@ -88,7 +89,9 @@ elif 'claude' in args.model:
     llm = ClaudeLLM(model=args.model)
 elif 'llama' in args.model:
     api_key = os.getenv("MULLE_KEY")
-    url = os.getenv("MULLE_URL")
+    base_url = os.getenv("MULLE_URL")
+    url = f'{base_url}/api/chat/completions'
+    
 
     if not api_key:
         raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")

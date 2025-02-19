@@ -21,6 +21,8 @@ class OpenWebUI(LLMBase):
         
     def query_remote_model(self, prompt, messages=None):
         n_attempt = 0
+        print(f'message: {messages}')
+        print(f'prompt: {prompt}')
         if messages is None:
             messages = [{'role': 'user', 'content': prompt}]
         while n_attempt < self.max_attempts:
@@ -35,6 +37,7 @@ class OpenWebUI(LLMBase):
                     #'files': [{'type': 'file', 'id': 'test.txt'}]
                 }
                 response = requests.post(self.model_path, headers=headers, json=payload)
+                print(f'response: {response}')
                 if not response:
                     print('Empty response!')
             except Exception as e:
@@ -49,6 +52,7 @@ class OpenWebUI(LLMBase):
             exit(1)
         
         response_data = response.json()
+        print(response_data)
         content = response_data['choices'][0]['message']['content']
         self.logger.info('Prompt: %s', prompt)
         self.logger.info('Response: %s', content)

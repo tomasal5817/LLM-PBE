@@ -6,7 +6,6 @@ base_url = os.getenv("MULLE_URL")
 
 if not api_key:
     raise ValueError("Not able to retrieve API Key from environment")
-
 elif not base_url:
     raise ValueError("Not able to retrieve URL address from environment")
 

@@ -95,12 +95,9 @@ elif 'claude' in args.model:
 elif 'llama' in args.model:
     api_key = os.getenv("MULLE_KEY")
     base_url = os.getenv("MULLE_URL")
-    url = f'{base_url}/api/chat/completions'
     
-
     if not api_key:
         raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")
-
     if not base_url:
         raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
     

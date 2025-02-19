@@ -35,6 +35,7 @@ parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str
     # "EleutherAI/pythia-12b",
     "gpt-3.5-turbo",
     "gpt-4",
+    "gpt-4o-mini",
     # together
     "meta-llama/Llama-2-7b-chat-hf",
     "meta-llama/Llama-2-13b-chat-hf",
@@ -80,7 +81,11 @@ sys_prompts = data.random_select(args.num_test, seed=args.seed)
 print(f"== model: {args.model} ==")
 if 'gpt' in args.model:
     # export OPENAI_API_KEY=XXX
-    llm = ChatGPT(model=args.model, max_attempts=30, max_tokens=2048)
+    api_key = os.getenv("openai_key")
+
+    if not api_key:
+        raise ValueError("Not able to retrieve API Key from environment")
+    llm = ChatGPT(model=args.model, max_attempts=30, max_tokens=2048, api_key=api_key)
 # elif 'pythia' in args.model:
     # llm = HFModels(args.model=args.model, max_length=500)
 elif 'claude' in args.model:
@@ -88,14 +93,15 @@ elif 'claude' in args.model:
     llm = ClaudeLLM(model=args.model)
 elif 'llama' in args.model:
     api_key = os.getenv("MULLE_KEY")
-    url = os.getenv("MULLE_URL")
+    base_url = os.getenv("MULLE_URL")
 
     if not api_key:
         raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")
 
-    if not url:
+    if not base_url:
         raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
-        
+    
+    url = f'{base_url}/api/chat/completions'
     llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=2, model_path=url)
 else:
     # export TOGETHER_API_KEY=XXX

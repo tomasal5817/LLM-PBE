@@ -105,8 +105,6 @@ class PromptLeakage:
                     response = model.query_remote_model(None, messages=msgs)
                 elif isinstance(model, TogetherAIModels):
                     prompt = model.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
-                    # print(f"prompt: {prompt}")
-                    
                     response = model.query_remote_model(prompt)
                 elif isinstance(model, OpenWebUI):
                     response = model.query_remote_model(None, messages=msgs)

@@ -17,6 +17,7 @@ from transformers import set_seed
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--mulle', default=False, type=bool, help='Use Mulle API')
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--num_test', default=10, type=int, help='num of sys prompts to extract.')
 parser.add_argument('--data', default='blackfriday', type=str, choices=['blackfriday', 'GPTs', 'blackfriday/Academic', 'blackfriday/Business', 'blackfriday/Creative', 'blackfriday/Game', 'blackfriday/Job-Hunting', 'blackfriday/Marketing', 'blackfriday/Productivity-&-life-style', 'blackfriday/Programming'])
@@ -33,6 +34,11 @@ parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str
     # "EleutherAI/pythia-2.8b",
     # "EleutherAI/pythia-6.9b",
     # "EleutherAI/pythia-12b",
+     # Mulle
+    "llama3.2:1b",
+    "deepseek-r1:8b",
+    "deepseek-r1:1.5b",
+    # Open AI
     "gpt-4o-mini",
     "gpt-3.5-turbo",
     "gpt-4",
@@ -41,7 +47,7 @@ parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str
     "meta-llama/Llama-2-7b-chat-hf",
     "meta-llama/Llama-2-13b-chat-hf",
     "meta-llama/Llama-2-70b-chat-hf",
-    "llama3.2:1b",
+    "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
     # not support system prompt
     # "mistralai/Mistral-7B-Instruct-v0.1",
     # "mistralai/Mixtral-8x7B-Instruct-v0.1",
@@ -81,35 +87,40 @@ sys_prompts = data.random_select(args.num_test, seed=args.seed)
 
 print(f"== model: {args.model} ==")
 if 'gpt' in args.model:
-    # export OPENAI_API_KEY=XXX
     api_key = os.getenv("OPENAI_KEY")
-
     if not api_key:
-        raise ValueError("Not able to retrieve API Key from environment")
+        raise ValueError("Not able to retrieve 'OPENAI_KEY' from environment")
     llm = ChatGPT(model=args.model, max_attempts=30, max_tokens=2048, api_key=api_key)
 # elif 'pythia' in args.model:
     # llm = HFModels(args.model=args.model, max_length=500)
 elif 'claude' in args.model:
     from models.claude import ClaudeLLM
     llm = ClaudeLLM(model=args.model)
-elif 'llama' in args.model:
+elif args.mulle:
+    print("Using Mulle API")
     api_key = os.getenv("MULLE_KEY")
     base_url = os.getenv("MULLE_URL")
-    
     if not api_key:
-        raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")
+        raise ValueError("Not able to retrieve 'MULLE_KEY' from environment")
     if not base_url:
-        raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
+        raise ValueError("Not able to retrieve 'MULLE_URL' from environment")
     
     url = f'{base_url}/api/chat/completions'
-    llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=2, model_path=url)
+    llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=3, model_path=url)
 else:
-    # export TOGETHER_API_KEY=XXX
-    llm = TogetherAIModels(model=args.model, max_attempts=30, max_tokens=2048)
+    print("Using TogetherAI API")
+    api_key = os.getenv("TOGETHER_API_KEY")
+    if not api_key:
+        raise ValueError("Not able to retrieve 'TOGETHER_API_KEY' from environment")
+    
+    llm = TogetherAIModels(api_key=api_key, model=args.model, max_attempts=3, max_tokens=2048)
     # llm = TogetherAIModels(model=args.model, max_attempts=30, max_tokens=256)  # for falcon
 attack = PromptLeakage()
 # try:
 results = attack.execute_attack(sys_prompts, llm)
+
+# for key, value in results.items():
+#    wandb.log({print(f"{key}: {value}")}, commit=False)
 
 fname = os.path.join(out_dir, args.run_name  + '.pth')
 torch.save(results, fname)

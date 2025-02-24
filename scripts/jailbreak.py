@@ -17,6 +17,7 @@ from transformers import set_seed
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--mulle', default=False, type=bool, help='Use Mulle API')
 parser.add_argument('--model', default="llama3.2:1b", type=str, choices=[
     # models: https://platform.openai.com/docs/models
     # https://docs.together.ai/docs/inference-models
@@ -62,7 +63,7 @@ if 'gpt' in args.model:
 elif 'claude' in args.model:
     from models.claude import ClaudeLLM
     llm = ClaudeLLM(model=args.model)
-elif 'llama' in args.model:
+elif args.mulle:
     api_key = os.getenv("MULLE_KEY")
     base_url = os.getenv("MULLE_URL")
     url = f'{base_url}/api/chat/completions'

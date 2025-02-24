@@ -34,6 +34,11 @@ class OpenWebUI(LLMBase):
                     'messages': messages
                     #'files': [{'type': 'file', 'id': 'test.txt'}]
                 }
+                print('Payload messages:')
+                for message in messages:
+                    for key, value in message.items():
+                        print(f'{key}: {value}')
+
                 response = requests.post(self.model_path, headers=headers, json=payload)
                 if not response:
                     print('Empty response!')
@@ -53,4 +58,7 @@ class OpenWebUI(LLMBase):
         self.logger.info('Prompt: %s', prompt)
         self.logger.info('Response: %s', content)
         
+        print('LLM response:')
+        for key, value in response_data['choices'][0].items():
+            print(f'{key}: {value}')
         return content

@@ -33,11 +33,17 @@ class FinetunedCasualLM(LLMBase):
         3. Local path pointed to GPT2 model finetuned based on https://github.com/microsoft/analysing_pii_leakage.
         Analyzing Leakage of Personally Identifiable Information in Language Models. Nils Lukas, Ahmed Salem, Robert Sim, Shruti Tople, Lukas Wutschitz and Santiago Zanella-Béguelin. Symposium on Security and Privacy (S&P '23). San Francisco, CA, USA.
     """
-    def __init__(self, model_path=None, arch=None, max_seq_len=1024):
-        if ':' in model_path:
-            model_path, self.model_revision = model_path.split(':')
-        else:
-            self.model_revision = 'main'
+    def __init__(self, model_path=None, model=None, api_key=None, arch=None, max_seq_len=1024):
+        #super().__init__(api_key=api_key, model_path=model_path)
+        print('init FinetunedCasualLM(LLMBase)')
+        self.model_revision = arch
+        self.model=model
+        self.api_key=api_key
+        #if ':' in model_path:
+        #    self.model_revision = model_path.split(':') #model_path, self.model_revision = model_path.split(':')
+        #else:
+        #    self.model_revision = 'main'
+        
         if arch is None:
             self.arch = model_path
             # if 'gpt2' in model_path:
@@ -52,8 +58,8 @@ class FinetunedCasualLM(LLMBase):
         self.tokenizer_use_fast = True
         self.max_seq_len = max_seq_len
         self.verbose = True
-        
-        super().__init__(model_path=model_path)
+        #super().__init__(model_path=model_path)
+        super().__init__(model_path=model_path, api_key=api_key)
     
     @property
     def tokenizer(self):

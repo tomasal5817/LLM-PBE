@@ -19,6 +19,8 @@ class LLMBase:
         self.load_model()
     
     def load_model(self):
+        print('in LLMBase load_model')
+        print(f'self.model_path: {self.model_path}')
         if self.model_path:
             self.load_local_model()
         elif self.api_key:

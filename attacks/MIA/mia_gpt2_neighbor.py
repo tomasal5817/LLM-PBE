@@ -6,26 +6,8 @@
 # Update datasets to v2.14.6
 
 import torch
-import argparse
-import os
-from datetime import datetime
 from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, BertTokenizer, BertForMaskedLM
-from utils import get_neighborhood_score
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--length', type=int, default=64)
-parser.add_argument('--num_iters', type=int, default=1_000)
-args = parser.parse_args()
-
-now = datetime.now()
-root = os.path.join(
-    'experiments',
-    now.strftime('%m_%d_%Y'),
-    now.strftime('%H_%M_%S')
-)
-if not os.path.isdir(root):
-    os.makedirs(root)
+from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling
 
 # Load the dataset
 dataset = load_dataset("ag_news")
@@ -53,8 +35,7 @@ DEVICE = torch.device("cuda")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_CKPT, use_fast=True)
 
 def tokenizer_function(samples):
-    return tokenizer(samples["text"], truncation=True)
-    return tokenizer(samples["text"], truncation=True, max_length=args.length)      # [NEW] For testing different sequence lengths
+    return tokenizer(samples["text"])
 
 tokenized_ds = dataset.map(tokenizer_function, 
                             batched=True,
@@ -89,15 +70,9 @@ print(clm_ds["test"])
 model = (
     AutoModelForCausalLM.from_pretrained("DunnBC22/gpt2-Causal_Language_Model-AG_News")
     ).to(DEVICE)
-model.is_causal = True          # [NEW] Necessary for util.generate_neighbors to work
 
 tokenizer.pad_token = tokenizer.eos_token
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
-
-# [NEW] Load reference model to search for token replacements
-search_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-search_model = BertForMaskedLM.from_pretrained('bert-base-uncased').to(DEVICE)
-search_embedder = search_model.bert.embeddings
 
 import numpy as np
 from torch.utils.data import DataLoader
@@ -105,13 +80,12 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 def eval_model(set_name):
-    dl = DataLoader(clm_ds[set_name].select(list(range(args.num_iters))), batch_size=16, collate_fn=data_collator)
+    dl = DataLoader(clm_ds[set_name].select(list(range(1000))), batch_size=16, collate_fn=data_collator)
 
     loss = 0
     total = 1
     model.eval()
     losses = []
-    nscores = []
     for batch in tqdm(dl):
         # batch = {k: torch.stack(v).to(DEVICE) for k, v in batch.items()}
         # if tokenizer.pad_token_id is not None:
@@ -141,39 +115,12 @@ def eval_model(set_name):
         sample_losses = loss_per_token.mean(1)
 
         losses.extend(sample_losses.cpu().numpy())
+    print(loss / total)
+    print(np.mean(losses))
+    return losses
 
-        # [NEW] Calculate neighbor scores
-        decoded_texts = tokenizer.batch_decode(batch['input_ids'])
-        for i in range(len(decoded_texts)):
-            nscore, _ = get_neighborhood_score(
-                decoded_texts[i], 
-                batch['labels'][i], 
-                tokenizer, 
-                model, 
-                search_tokenizer, 
-                search_model, 
-                search_embedder
-            )
-            nscores.append(nscore)
-    return losses, nscores
-
-# Evaluate model on train and test sets, save data to disk
-train_losses, train_nscores = eval_model('train')
-np.save(os.path.join(root, 'train_losses.npy'), np.array(train_losses))
-np.save(os.path.join(root, 'train_nscores.npy'), np.array(train_nscores))
-
-test_losses, test_nscores = eval_model('test')
-np.save(os.path.join(root, 'test_losses.npy'), np.array(test_losses))
-np.save(os.path.join(root, 'test_nscores.npy'), np.array(test_nscores))
-
-# [NEW] Load data and evaluate AUC
-# train_losses = np.load(os.path.join(root, 'train_losses.npy')).tolist()
-# test_losses = np.load(os.path.join(root, 'test_losses.npy')).tolist()
-
-train_losses = np.load(os.path.join(root, 'train_nscores.npy'))
-train_losses = (-train_losses).tolist()
-test_losses = np.load(os.path.join(root, 'test_nscores.npy'))
-test_losses = (-test_losses).tolist()
+train_losses = eval_model('train')
+test_losses = eval_model('test')
 
 from sklearn.metrics import roc_auc_score
 losses = train_losses + test_losses

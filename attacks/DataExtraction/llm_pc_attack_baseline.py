@@ -68,7 +68,6 @@ task_message = [
 model_card= args.arch.split('/')[-2] + '_' + args.arch.split('/')[-1]
 save_folder= "generations/LLM_PC_attack_baseline"
 os.makedirs(save_folder, exist_ok=True) 
-
 output_fname= os.path.join(save_folder, f'{model_card}_num{args.num_attack_sample}_min{args.min_prompt_len}_task_msg{args.task_msg}_diverse.jsonl')
 result=[]
     

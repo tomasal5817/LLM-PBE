@@ -22,11 +22,12 @@ class CustomECHRBuilder(datasets.BuilderConfig):
     sample_duplication_rate: int = 1    # number of times a sample is repeated
     shuffle_facts_seed: int = 42
     pseudonymize: bool = True
+    trust_remote_code: bool = True
 
 
 class CustomECHR(datasets.GeneratorBasedBuilder):
     """ A wrapper around the ECHR dataset that uses anonymization.  """
-
+  
     VERSION = datasets.Version("1.0.0")
     _DESCRIPTION = "A custom wrapper for the ECHR dataset."
     _TEXT = "text"

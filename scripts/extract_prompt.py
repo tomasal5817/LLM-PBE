@@ -6,6 +6,7 @@ from models.hf_models import HFModels
 from models.chatgpt import ChatGPT
 from models.open_webui import OpenWebUI
 from models.togetherai import TogetherAIModels
+from models.ft_clm import PeftCasualLM, FinetunedCasualLM
 import argparse
 from collections import defaultdict
 import numpy as np
@@ -18,8 +19,11 @@ from transformers import set_seed
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mulle', default=False, type=bool, help='Use Mulle API')
+parser.add_argument('--arch', default='meta-llama/Llama-2-7b-chat', type=str)
+parser.add_argument('--peft', default='lora', type=str)
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--num_test', default=10, type=int, help='num of sys prompts to extract.')
+parser.add_argument('--max_seq_len', default=1024, type=int)
 parser.add_argument('--data', default='blackfriday', type=str, choices=['blackfriday', 'GPTs', 'blackfriday/Academic', 'blackfriday/Business', 'blackfriday/Creative', 'blackfriday/Game', 'blackfriday/Job-Hunting', 'blackfriday/Marketing', 'blackfriday/Productivity-&-life-style', 'blackfriday/Programming'])
 parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str, choices=[
     # models: https://platform.openai.com/docs/models
@@ -34,6 +38,8 @@ parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str
     # "EleutherAI/pythia-2.8b",
     # "EleutherAI/pythia-6.9b",
     # "EleutherAI/pythia-12b",
+    # Fine-tuned models,
+    'Tomasal/echr-llama3.2-1b-undefended-mod',
      # Mulle
     "llama3.2:1b",
     "deepseek-r1:8b",
@@ -86,7 +92,9 @@ data = PromptLeakageSysPrompts(category=args.data)
 sys_prompts = data.random_select(args.num_test, seed=args.seed)
 
 print(f"== model: {args.model} ==")
-if 'gpt' in args.model:
+if args.peft != 'none':
+    llm = PeftCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
+elif 'gpt' in args.model:
     api_key = os.getenv("OPENAI_KEY")
     if not api_key:
         raise ValueError("Not able to retrieve 'OPENAI_KEY' from environment")

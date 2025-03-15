@@ -2,6 +2,8 @@ from tqdm import tqdm
 import torch
 import os
 import numpy as np
+from transformers import PreTrainedModel, AutoTokenizer
+from models.ft_clm import PeftCasualLM, FinetunedCasualLM
 from models.chatgpt import ChatGPT
 from models.togetherai import TogetherAIModels
 from models.claude import ClaudeLLM
@@ -110,6 +112,12 @@ class PromptLeakage:
                     response = model.query_remote_model(None, messages=msgs)
                 elif isinstance(model, ClaudeLLM):
                     response = model.query_remote_model(None, messages=msgs)
+                # Load Huggingface model
+                elif isinstance(model, PeftCasualLM):
+                    tokenizer = AutoTokenizer.from_pretrained(model.arch) 
+                    inputs = tokenizer.apply_chat_template(msgs, tokenize=True, return_tensors="pt")
+                    output = model.generate(**inputs, max_new_tokens=model.max_seq_len)
+                    response = tokenizer.decode(output[0], skip_special_tokens=True)
                 else:
                     raise NotImplementedError(f"Unknown model type {model}")
 
@@ -129,6 +137,10 @@ class PromptLeakage:
                             response = model.query_remote_model(None, messages=msgs)
                         elif isinstance(model, ClaudeLLM):
                             response = model.query_remote_model(None, messages=msgs)
+                        elif isinstance(model, PeftCasualLM):  # Hugging Face Model in multi-round
+                            inputs = tokenizer.apply_chat_template(msgs, tokenize=True, return_tensors="pt")
+                            output = model.generate(**inputs, max_new_tokens=model.max_seq_len)
+                            response = tokenizer.decode(output[0], skip_special_tokens=True)
                         else:
                             raise NotImplementedError(f"Unknown model type {model}")
                 

@@ -91,7 +91,8 @@ if not os.path.exists(out_dir):
 data = PromptLeakageSysPrompts(category=args.data)
 sys_prompts = data.random_select(args.num_test, seed=args.seed)
 
-print(f"== model: {args.model} ==")
+print(f"== model: {args.model} ==") 
+
 if args.peft != 'none':
     llm = PeftCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
 elif 'gpt' in args.model:

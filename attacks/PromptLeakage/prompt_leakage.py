@@ -120,14 +120,7 @@ class PromptLeakage:
                     inputs = tokenizer.apply_chat_template(msgs, tokenize=True, return_tensors="pt")
                     
                     # Debugging purpose
-                    print(f"Type of inputs: {type(inputs)}")  
-                    print(f"Keys in inputs: {inputs.keys()}") 
-                    if "input_ids" in inputs:
-                        print(f"Shape of input_ids: {inputs['input_ids'].shape}") 
-                        print(f"input_ids content: {inputs['input_ids']}")  
-                    else:
-                        raise ValueError("Key 'input_ids' not found in inputs dictionary!")
-                    
+                    print(f"Shape of inputs: {inputs.shape}")
                     input_ids = inputs["input_ids"].unsqueeze(0)
                     with torch.no_grad():  
                         output = model._lm.generate(input_ids=input_ids, max_new_tokens=model.max_seq_len) 

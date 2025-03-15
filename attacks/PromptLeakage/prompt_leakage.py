@@ -118,12 +118,8 @@ class PromptLeakage:
                     if tokenizer.chat_template is None:
                         raise NotImplementedError(f"No chat template for model: {model.arch}") 
                     inputs = tokenizer.apply_chat_template(msgs, tokenize=True, return_tensors="pt")
-                    
-                    # Debugging purpose
-                    print(f"Shape of inputs: {inputs.shape}")
-                    input_ids = inputs["input_ids"].unsqueeze(0)
                     with torch.no_grad():  
-                        output = model._lm.generate(input_ids=input_ids, max_new_tokens=model.max_seq_len) 
+                        output = model._lm.generate(input_ids=inputs, max_new_tokens=model.max_seq_len) 
                     # output = model._lm.generate(input_ids=input_ids, max_new_tokens=model.max_seq_len)
                     response = tokenizer.decode(output[0], skip_special_tokens=True)
                 else:

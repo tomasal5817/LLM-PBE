@@ -114,9 +114,9 @@ class PromptLeakage:
                     response = model.query_remote_model(None, messages=msgs)
                 # Load Huggingface model
                 elif isinstance(model, PeftCasualLM):
+                    tokenizer = AutoTokenizer.from_pretrained(model.arch)
                     if tokenizer.chat_template is None:
-                        raise NotImplementedError(f"No chat template for model: {model.arch}")
-                    tokenizer = AutoTokenizer.from_pretrained(model.arch) 
+                        raise NotImplementedError(f"No chat template for model: {model.arch}") 
                     inputs = tokenizer.apply_chat_template(msgs, tokenize=True, return_tensors="pt")
                     output = model._lm.generate(**inputs, max_new_tokens=model.max_seq_len)
                     response = tokenizer.decode(output[0], skip_special_tokens=True)

@@ -230,7 +230,45 @@ class PeftCasualLM(FinetunedCasualLM):
         except:
             self._lm = PeftModel.from_pretrained(self._lm, self.model_path, device_map='auto', offload_folder='./offload')
         # self._lm = self._lm.merge_and_unload()
+    
+    def query_model(self, query, msgs):
+        """Generates a response using the PeftCasualLM model."""
+        if self.tokenizer.chat_template is None:
+            raise NotImplementedError(f"No chat template for model: {self.arch}")
 
+        inputs = self.tokenizer.apply_chat_template(msgs, tokenize=True, return_tensors="pt")
+
+        # Debugging prints
+        print(f"Type of inputs: {type(inputs)}")
+        print(f"Inputs structure: {inputs}")
+
+        # Get model's device
+        device = self._lm.device
+        print(f"Model device: {device}")
+
+        # Handle different input structures
+        if isinstance(inputs, torch.Tensor): 
+            input_ids = inputs.to(device)
+        elif isinstance(inputs, dict) and "input_ids" in inputs:  
+            input_ids = inputs["input_ids"].to(device)
+        else:
+            raise ValueError(f"Unexpected structure from tokenizer: {inputs}")
+
+        attention_mask = inputs.get("attention_mask", None)
+        if attention_mask is not None:
+            attention_mask = attention_mask.to(device)
+
+        # Set pad token 
+        self._lm.config.pad_token_id = self.tokenizer.eos_token_id
+
+        with torch.no_grad():
+            output = self._lm.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                max_new_tokens=self.max_seq_len
+            )  
+
+        return self.tokenizer.decode(output[0], skip_special_tokens=True)
 
 if __name__ == '__main__':
     # Testing purposes

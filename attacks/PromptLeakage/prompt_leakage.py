@@ -112,32 +112,8 @@ class PromptLeakage:
                     response = model.query_remote_model(None, messages=msgs)
                 elif isinstance(model, ClaudeLLM):
                     response = model.query_remote_model(None, messages=msgs)
-                
-                # Load Huggingface model
-                elif isinstance(model, PeftCasualLM):
-                    tokenizer = AutoTokenizer.from_pretrained(model.arch)
-                    if tokenizer.chat_template is None:
-                        raise NotImplementedError(f"No chat template for model: {model.arch}") 
-                    inputs = tokenizer.apply_chat_template(msgs, tokenize=True, return_tensors="pt") 
-                    
-                    # Get model device
-                    device = model._lm.device
-                    # Debugging
-                    print(f"Model device: {device}")  
-                    # Move input tensors to model's device
-                    input_ids = inputs["input_ids"].to(device)
-                    attention_mask = inputs.get("attention_mask", None)
-                    if attention_mask is not None:
-                        attention_mask = attention_mask.to(device)
-                    # Set pad token 
-                    model._lm.config.pad_token_id = tokenizer.eos_token_id
-                    with torch.no_grad():
-                        output = model._lm.generate(
-                            input_ids=input_ids,
-                            attention_mask=attention_mask,
-                            max_new_tokens=model.max_seq_len
-                        )
-                    response = tokenizer.decode(output[0], skip_special_tokens=True)
+                elif isinstance(model, PeftCasualLM):  # Load Huggingface model
+                    response = model.query_model(None, messages=msgs)
                 else:
                     raise NotImplementedError(f"Unknown model type {model}")
 
@@ -157,10 +133,8 @@ class PromptLeakage:
                             response = model.query_remote_model(None, messages=msgs)
                         elif isinstance(model, ClaudeLLM):
                             response = model.query_remote_model(None, messages=msgs)
-                        elif isinstance(model, PeftCasualLM):  # Hugging Face Model in multi-round
-                            inputs = tokenizer.apply_chat_template(msgs, tokenize=True, return_tensors="pt")
-                            output = model._lm.generate(**inputs, max_new_tokens=model.max_seq_len)
-                            response = tokenizer.decode(output[0], skip_special_tokens=True)
+                        elif isinstance(model, PeftCasualLM):  # Hugging Face Model
+                            response = model.query_model(None, msgs)
                         else:
                             raise NotImplementedError(f"Unknown model type {model}")
                 

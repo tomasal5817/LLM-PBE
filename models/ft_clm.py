@@ -121,6 +121,8 @@ class FinetunedCasualLM(LLMBase):
             generated_text = self._tokenizer.decode(output.sequences[0][len(input_ids[0]):], skip_special_tokens=True)
         else:
             generated_text = self._tokenizer.decode(output.sequences[0], skip_special_tokens=True)
+        print(f'query: {text}')
+        print(f'generated_text: {generated_text}')
         return generated_text
         
     def evaluate(self, text, tokenized=False):

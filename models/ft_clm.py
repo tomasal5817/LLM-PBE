@@ -121,7 +121,11 @@ class FinetunedCasualLM(LLMBase):
                 attention_mask=attention_mask,
                 max_new_tokens=self.max_seq_len
             )
-        generated_text = self._tokenizer.decode(output.sequences[0], skip_special_tokens=True)
+      
+        if new_str_only:
+            generated_text = self._tokenizer.decode(output.sequences[0][len(input_ids[0]):], skip_special_tokens=True)
+        else:
+            generated_text = self._tokenizer.decode(output.sequences[0], skip_special_tokens=True)
 
         print(f"Query: {text}")
         print(f"Generated Text: {generated_text}")

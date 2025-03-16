@@ -265,8 +265,10 @@ class PeftCasualLM(FinetunedCasualLM):
                 attention_mask=attention_mask,
                 max_new_tokens=self.max_seq_len
             )  
-
-        return self.tokenizer.decode(output[0], skip_special_tokens=True)
+        print(f'messages: {messages}')
+        response = self.tokenizer.decode(output[0], skip_special_tokens=True)
+        print(f'response: {response}')
+        return response
 
 if __name__ == '__main__':
     # Testing purposes

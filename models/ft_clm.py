@@ -97,7 +97,7 @@ class FinetunedCasualLM(LLMBase):
         - str: The model's output.
         """
         # TODO pass the args into here. The params should be set according to PII-leakage.
-        print("TODO pass the args into here. The params should be set according to PII-leakage.")
+        # print("TODO pass the args into here. The params should be set according to PII-leakage.")
         # Encode the text prompt and generate a response
         input_ids = self._tokenizer.encode(text, return_tensors='pt')
         # output = self.model.generate(input_ids)

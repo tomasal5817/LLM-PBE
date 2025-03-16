@@ -119,7 +119,8 @@ class FinetunedCasualLM(LLMBase):
             output = self._lm.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
-                max_new_tokens=self.max_seq_len
+                max_new_tokens=self.max_seq_len,
+                return_dict_in_generate=True,
             )
       
         if new_str_only:

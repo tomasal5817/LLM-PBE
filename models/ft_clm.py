@@ -97,7 +97,7 @@ class FinetunedCasualLM(LLMBase):
         - str: The model's output.
         """
         # TODO pass the args into here. The params should be set according to PII-leakage.
-
+        print("TODO pass the args into here. The params should be set according to PII-leakage.")
         # Encode the text prompt and generate a response
         input_ids = self._tokenizer.encode(text, return_tensors='pt')
         # output = self.model.generate(input_ids)
@@ -246,17 +246,14 @@ class PeftCasualLM(FinetunedCasualLM):
         device = self._lm.device
         print(f"Model device: {device}")
 
-        # Handle different input structures
-        if isinstance(inputs, torch.Tensor): 
-            input_ids = inputs.to(device)
-        elif isinstance(inputs, dict) and "input_ids" in inputs:  
+        if isinstance(inputs, dict):  
             input_ids = inputs["input_ids"].to(device)
-        else:
-            raise ValueError(f"Unexpected structure from tokenizer: {inputs}")
-
-        attention_mask = inputs.get("attention_mask", None)
-        if attention_mask is not None:
-            attention_mask = attention_mask.to(device)
+            attention_mask = inputs.get("attention_mask", None)
+            if attention_mask is not None:
+                attention_mask = attention_mask.to(device)
+        elif isinstance(inputs, torch.Tensor):  
+            input_ids = inputs.to(device)
+            attention_mask = None  
 
         # Set pad token 
         self._lm.config.pad_token_id = self.tokenizer.eos_token_id

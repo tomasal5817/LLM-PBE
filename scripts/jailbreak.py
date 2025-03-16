@@ -8,6 +8,7 @@ from models.hf_models import HFModels
 from models.chatgpt import ChatGPT
 from models.open_webui import OpenWebUI
 from models.togetherai import TogetherAIModels
+from models.ft_clm import PeftCasualLM, FinetunedCasualLM
 import argparse
 from collections import defaultdict
 import os
@@ -18,6 +19,8 @@ from transformers import set_seed
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mulle', default=False, type=bool, help='Use Mulle API')
+parser.add_argument('--max_seq_len', default=1024, type=int)
+parser.add_argument('--peft', default='none', type=str)
 parser.add_argument('--model', default="llama3.2:1b", type=str, choices=[
     # models: https://platform.openai.com/docs/models
     # https://docs.together.ai/docs/inference-models
@@ -31,6 +34,7 @@ parser.add_argument('--model', default="llama3.2:1b", type=str, choices=[
     # "EleutherAI/pythia-2.8b",
     # "EleutherAI/pythia-6.9b",
     # "EleutherAI/pythia-12b",
+    "Tomasal/echr-llama3.2-1b-undefended-mod",
     "gpt-4o-mini",
     "gpt-3.5-turbo",
     "gpt-4",
@@ -55,7 +59,9 @@ parser.add_argument('--model', default="llama3.2:1b", type=str, choices=[
 args = parser.parse_args()
 
 print(f"== model: {args.model} ==")
-if 'gpt' in args.model:
+if args.peft != 'none':
+    llm = PeftCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
+elif 'gpt' in args.model:
     api_key = os.getenv("OPENAI_KEY")
     llm = ChatGPT(api_key=api_key, model=args.model, max_attempts=30, max_tokens=2048)
 # elif 'pythia' in args.model:

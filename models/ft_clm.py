@@ -239,8 +239,8 @@ class PeftCasualLM(FinetunedCasualLM):
         inputs = self.tokenizer.apply_chat_template(messages, tokenize=True, return_tensors="pt")
 
         # Debugging prints
-        print(f"Type of inputs: {type(inputs)}")
-        print(f"Inputs structure: {inputs}")
+        # print(f"Type of inputs: {type(inputs)}")
+        # print(f"Inputs structure: {inputs}")
 
         # Get model's device
         device = self._lm.device
@@ -248,15 +248,14 @@ class PeftCasualLM(FinetunedCasualLM):
 
         if isinstance(inputs, dict):  
             input_ids = inputs["input_ids"].to(device)
-            attention_mask = inputs.get("attention_mask", None)
-            if attention_mask is not None:
-                attention_mask = attention_mask.to(device)
+            attention_mask = inputs.get("attention_mask", torch.ones_like(input_ids))  
         elif isinstance(inputs, torch.Tensor):  
             input_ids = inputs.to(device)
-            attention_mask = None  
+            attention_mask = torch.ones_like(input_ids) 
 
-        # Set pad token 
+        # Set pad token
         self._lm.config.pad_token_id = self.tokenizer.eos_token_id
+        self._lm.config.use_cache = False  
 
         with torch.no_grad():
             output = self._lm.generate(

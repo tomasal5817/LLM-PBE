@@ -19,6 +19,7 @@ from transformers import set_seed
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mulle', default=False, type=bool, help='Use Mulle API')
+parser.add_argument('--arch', default='meta-llama/Llama-2-7b-chat', type=str)
 parser.add_argument('--max_seq_len', default=1024, type=int)
 parser.add_argument('--peft', default='none', type=str)
 parser.add_argument('--model', default="llama3.2:1b", type=str, choices=[

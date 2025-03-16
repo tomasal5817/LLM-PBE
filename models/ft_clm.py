@@ -96,6 +96,37 @@ class FinetunedCasualLM(LLMBase):
         Returns:
         - str: The model's output.
         """
+        device = self._lm.device
+        print(f"Model device: {device}")
+
+        # Set pad token
+        if self._tokenizer.pad_token_id is None:
+            self._tokenizer.pad_token_id = self._tokenizer.eos_token_id
+        self._lm.config.pad_token_id = self._tokenizer.pad_token_id
+
+        inputs = self._tokenizer(text, return_tensors="pt", truncation=True, max_length=self.max_seq_len)
+
+        if "attention_mask" not in inputs:
+            inputs["attention_mask"] = (inputs["input_ids"] != self._tokenizer.pad_token_id).long()
+
+        input_ids = inputs["input_ids"].to(device)
+        attention_mask = inputs["attention_mask"].to(device)
+
+        with torch.no_grad():
+            output = self._lm.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                max_new_tokens=self.max_seq_len,
+                return_dict_in_generate=True,
+            )
+
+        generated_text = self._tokenizer.decode(output.sequences[0], skip_special_tokens=True)
+
+        print(f"Query: {text}")
+        print(f"Generated Text: {generated_text}")
+
+        return generated_text
+        """
         # TODO pass the args into here. The params should be set according to PII-leakage.
         # print("TODO pass the args into here. The params should be set according to PII-leakage.")
         # Encode the text prompt and generate a response
@@ -124,7 +155,7 @@ class FinetunedCasualLM(LLMBase):
         print(f'query: {text}')
         print(f'generated_text: {generated_text}')
         return generated_text
-        
+        """
     def evaluate(self, text, tokenized=False):
         """
         Evaluate an open-source model with a given text prompt.

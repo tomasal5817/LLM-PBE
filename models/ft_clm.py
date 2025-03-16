@@ -98,11 +98,11 @@ class FinetunedCasualLM(LLMBase):
         """
         device = self._lm.device
         print(f"Model device: {device}")
-
-        if hasattr(self.tokenizer, "chat_template") and self.tokenizer.chat_template is not None:
-            inputs = self.tokenizer.apply_chat_template(text, tokenize=True, return_tensors="pt", padding=True)
-        else:
-            inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=self.max_seq_len)
+        input_ids = self._tokenizer.encode(text, return_tensors='pt')
+        #if hasattr(self.tokenizer, "chat_template") and self.tokenizer.chat_template is not None:
+        #    inputs = self.tokenizer.apply_chat_template(text, tokenize=True, return_tensors="pt", padding=True)
+        #else:
+        #    inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=self.max_seq_len)
 
         if isinstance(inputs, dict):  
             input_ids = inputs["input_ids"].to(device)

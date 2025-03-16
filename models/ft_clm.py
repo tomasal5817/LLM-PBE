@@ -96,6 +96,7 @@ class FinetunedCasualLM(LLMBase):
         Returns:
         - str: The model's output.
         """
+        """
         device = self._lm.device
         print(f"Model device: {device}")
         input_ids = self._tokenizer.encode(text, return_tensors='pt')
@@ -161,7 +162,7 @@ class FinetunedCasualLM(LLMBase):
         print(f'query: {text}')
         print(f'generated_text: {generated_text}')
         return generated_text
-        """
+
     def evaluate(self, text, tokenized=False):
         """
         Evaluate an open-source model with a given text prompt.

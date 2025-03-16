@@ -231,12 +231,12 @@ class PeftCasualLM(FinetunedCasualLM):
             self._lm = PeftModel.from_pretrained(self._lm, self.model_path, device_map='auto', offload_folder='./offload')
         # self._lm = self._lm.merge_and_unload()
     
-    def query_model(self, query, msgs):
+    def query_model(self, query, messages):
         """Generates a response using the PeftCasualLM model."""
         if self.tokenizer.chat_template is None:
             raise NotImplementedError(f"No chat template for model: {self.arch}")
 
-        inputs = self.tokenizer.apply_chat_template(msgs, tokenize=True, return_tensors="pt")
+        inputs = self.tokenizer.apply_chat_template(messages, tokenize=True, return_tensors="pt")
 
         # Debugging prints
         print(f"Type of inputs: {type(inputs)}")

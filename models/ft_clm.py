@@ -99,27 +99,28 @@ class FinetunedCasualLM(LLMBase):
         device = self._lm.device
         print(f"Model device: {device}")
 
+        if hasattr(self.tokenizer, "chat_template") and self.tokenizer.chat_template is not None:
+            inputs = self.tokenizer.apply_chat_template(text, tokenize=True, return_tensors="pt", padding=True)
+        else:
+            inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=self.max_seq_len)
+
+        if isinstance(inputs, dict):  
+            input_ids = inputs["input_ids"].to(device)
+            attention_mask = inputs.get("attention_mask", torch.ones_like(input_ids))  
+        elif isinstance(inputs, torch.Tensor):  
+            input_ids = inputs.to(device)
+            attention_mask = torch.ones_like(input_ids) 
+
         # Set pad token
-        if self._tokenizer.pad_token_id is None:
-            self._tokenizer.pad_token_id = self._tokenizer.eos_token_id
-        self._lm.config.pad_token_id = self._tokenizer.pad_token_id
-
-        inputs = self._tokenizer(text, return_tensors="pt", truncation=True, max_length=self.max_seq_len)
-
-        if "attention_mask" not in inputs:
-            inputs["attention_mask"] = (inputs["input_ids"] != self._tokenizer.pad_token_id).long()
-
-        input_ids = inputs["input_ids"].to(device)
-        attention_mask = inputs["attention_mask"].to(device)
+        self._lm.config.pad_token_id = self.tokenizer.eos_token_id
+        self._lm.config.use_cache = False  
 
         with torch.no_grad():
             output = self._lm.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
-                max_new_tokens=self.max_seq_len,
-                return_dict_in_generate=True,
+                max_new_tokens=self.max_seq_len
             )
-
         generated_text = self._tokenizer.decode(output.sequences[0], skip_special_tokens=True)
 
         print(f"Query: {text}")

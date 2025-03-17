@@ -40,6 +40,8 @@ parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str
     # "EleutherAI/pythia-12b",
     # Fine-tuned models,
     'Tomasal/echr-llama3.2-1b-undefended-mod',
+    'meta-llama/Llama3.2-1B',
+    'meta-llama/Llama3.2-1B-Instruct',
      # Mulle
     "llama3.2:1b",
     "deepseek-r1:8b",

@@ -40,6 +40,8 @@ parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str
     # "EleutherAI/pythia-12b",
     # Fine-tuned models,
     'meta-llama/Llama-3.2-3B-Instruct',
+    'Tomasal/enron-llama3.2-3b-undefended',
+    'Tomasal/enron-llama3.2-3b-dp8',
     'Tomasal/echr-llama3.2-1b-undefended-mod',
     'meta-llama/Llama3.2-1B',
     'meta-llama/Llama3.2-1B-Instruct',

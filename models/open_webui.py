@@ -54,6 +54,7 @@ class OpenWebUI(LLMBase):
             exit(1)
         
         response_data = response.json()
+        print(response_data)
         content = response_data['choices'][0]['message']['content']
         self.logger.info('Prompt: %s', prompt)
         self.logger.info('Response: %s', content)

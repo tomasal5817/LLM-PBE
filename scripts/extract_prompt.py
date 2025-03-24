@@ -39,6 +39,7 @@ parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str
     # "EleutherAI/pythia-6.9b",
     # "EleutherAI/pythia-12b",
     # Fine-tuned models,
+    'meta-llama/Llama-3.2-3B-Instruct',
     'Tomasal/echr-llama3.2-1b-undefended-mod',
     'meta-llama/Llama3.2-1B',
     'meta-llama/Llama3.2-1B-Instruct',
@@ -115,9 +116,10 @@ elif args.mulle:
         raise ValueError("Not able to retrieve 'MULLE_KEY' from environment")
     if not base_url:
         raise ValueError("Not able to retrieve 'MULLE_URL' from environment")
-    
     url = f'{base_url}/api/chat/completions'
     llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=3, model_path=url)
+elif 'meta-llama' in args.model:
+     llm = PeftCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len) 
 else:
     print("Using TogetherAI API")
     api_key = os.getenv("TOGETHER_API_KEY")

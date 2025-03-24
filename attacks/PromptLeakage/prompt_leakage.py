@@ -112,7 +112,7 @@ class PromptLeakage:
                     response = model.query_remote_model(None, messages=msgs)
                 elif isinstance(model, ClaudeLLM):
                     response = model.query_remote_model(None, messages=msgs)
-                elif isinstance(model, PeftCasualLM):  # Load Huggingface model
+                elif isinstance(model, PeftCasualLM) or isinstance(model, FinetunedCasualLM):  # Load Huggingface model
                     response = model.query_model(None, messages=msgs)
                 else:
                     raise NotImplementedError(f"Unknown model type {model}")

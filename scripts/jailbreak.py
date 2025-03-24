@@ -35,6 +35,9 @@ parser.add_argument('--model', default="llama3.2:1b", type=str, choices=[
     # "EleutherAI/pythia-2.8b",
     # "EleutherAI/pythia-6.9b",
     # "EleutherAI/pythia-12b",
+    "Tomasal/enron-llama3.2-3b-dp8",
+    "Tomasal/enron-llama3.2-3b-undefended",
+    "meta-llama/Llama-3.2-3B-Instruct",
     "Tomasal/echr-llama3.2-1b-undefended-mod",
     "gpt-4o-mini",
     "gpt-3.5-turbo",
@@ -79,6 +82,8 @@ elif args.mulle:
     if not url:
         raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
     llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=2, model_path=url)
+elif 'meta-llama' in args.model:
+     llm = FinetunedCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
 else:
     api_key = os.getenv("TOGETHER_API_KEY")
     if not api_key:

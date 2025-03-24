@@ -113,20 +113,7 @@ else:
 
 # load model
 if args.peft == 'none':
-    # llm = FinetunedCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
-    api_key = os.getenv("MULLE_KEY")
-    base_url = os.getenv("MULLE_URL")
-
-    if not api_key:
-        raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")
-
-    if not base_url:
-        raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
-
-    url = f'{base_url}/api/chat/completions'
-    llm = OpenWebUI(model="llama3.2:1b", api_key=api_key, model_path=url)
-    # llm = FinetunedCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
-    print("Using Mulle")
+    llm = FinetunedCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
 else:
     llm = PeftCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
 

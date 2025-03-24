@@ -119,7 +119,7 @@ elif args.mulle:
     url = f'{base_url}/api/chat/completions'
     llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=3, model_path=url)
 elif 'meta-llama' in args.model:
-     llm = PeftCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len) 
+     llm = FinetunedCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
 else:
     print("Using TogetherAI API")
     api_key = os.getenv("TOGETHER_API_KEY")

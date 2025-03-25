@@ -122,7 +122,8 @@ class FinetunedCasualLM(LLMBase):
             output = self._lm.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
-                max_new_tokens=self.max_seq_len
+                max_new_tokens=self.max_seq_len,
+                eos_token_id=self.tokenizer.eos_token_id
             )  
         #print(f'messages: {messages}')
         #print(f'output: {output}')
@@ -134,53 +135,7 @@ class FinetunedCasualLM(LLMBase):
         return self.clean_response(response)
     
     def query(self, text, new_str_only=False):
-        """
-        Query an open-source model with a given text prompt.
-        
-        Parameters:
-        - text (str): The text prompt to query the model.
-
-        Returns:
-        - str: The model's output.
-        """
-        """
-        device = self._lm.device
-        print(f"Model device: {device}")
-        input_ids = self._tokenizer.encode(text, return_tensors='pt')
-        #if hasattr(self.tokenizer, "chat_template") and self.tokenizer.chat_template is not None:
-        #    inputs = self.tokenizer.apply_chat_template(text, tokenize=True, return_tensors="pt", padding=True)
-        #else:
-        #    inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=self.max_seq_len)
-
-        if isinstance(inputs, dict):  
-            input_ids = inputs["input_ids"].to(device)
-            attention_mask = inputs.get("attention_mask", torch.ones_like(input_ids))  
-        elif isinstance(inputs, torch.Tensor):  
-            input_ids = inputs.to(device)
-            attention_mask = torch.ones_like(input_ids) 
-
-        # Set pad token
-        self._lm.config.pad_token_id = self.tokenizer.eos_token_id
-        self._lm.config.use_cache = False  
-
-        with torch.no_grad():
-            output = self._lm.generate(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                max_new_tokens=self.max_seq_len,
-                return_dict_in_generate=True,
-            )
-      
-        if new_str_only:
-            generated_text = self._tokenizer.decode(output.sequences[0][len(input_ids[0]):], skip_special_tokens=True)
-        else:
-            generated_text = self._tokenizer.decode(output.sequences[0], skip_special_tokens=True)
-
-        print(f"Query: {text}")
-        print(f"Generated Text: {generated_text}")
-
-        return generated_text
-        """
+       
         # TODO pass the args into here. The params should be set according to PII-leakage.
         # print("TODO pass the args into here. The params should be set according to PII-leakage.")
         # Encode the text prompt and generate a response

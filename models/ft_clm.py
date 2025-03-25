@@ -86,6 +86,12 @@ class FinetunedCasualLM(LLMBase):
         self._tokenizer.pad_token = self._tokenizer.eos_token
         self._lm.config.pad_token_id = self._lm.config.eos_token_id
     
+    def clean_response(self, response_text):
+        split_token = "assistant"
+        if split_token in response_text:
+            response_text = response_text.split(split_token, 1)[1].strip()
+        return response_text
+
     def query_model(self, query, messages):
         """Generates a response using the PeftCasualLM model."""
         if self.tokenizer.chat_template is None:
@@ -118,10 +124,14 @@ class FinetunedCasualLM(LLMBase):
                 attention_mask=attention_mask,
                 max_new_tokens=self.max_seq_len
             )  
-        print(f'messages: {messages}')
-        response = self.tokenizer.decode(output[0], skip_special_tokens=True)
-        print(f'response: {response}')
-        return response
+        #print(f'messages: {messages}')
+        #print(f'output: {output}')
+        #response = self.tokenizer.decode(output[0], skip_special_tokens=True)
+        generated_tokens = output[0][input_ids.shape[-1]:]
+        response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        #print(f'response: {response}')
+
+        return self.clean_response(response)
     
     def query(self, text, new_str_only=False):
         """

@@ -122,7 +122,7 @@ class FinetunedCasualLM(LLMBase):
         #print(f'messages: {messages}')
         #response = self.tokenizer.decode(output[0], skip_special_tokens=True)
         generated_tokens = output[0][input_ids.shape[-1]:]
-        response = tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
         print(f'response: {response}')
         return response
     

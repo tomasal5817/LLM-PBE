@@ -34,13 +34,14 @@ class OpenWebUI(LLMBase):
                     'messages': messages
                     #'files': [{'type': 'file', 'id': 'test.txt'}]
                 }
-                print('Payload messages:')
-                for message in messages:
-                    for key, value in message.items():
-                        print(f'{key}: {value}')
+                #print('Payload messages:')
+                #for message in messages:
+                    #for key, value in message.items():
+                        #print(f'{key}: {value}')
 
                 response = requests.post(self.model_path, headers=headers, json=payload)
                 if not response:
+                    print(payload)
                     print('Empty response!')
             except Exception as e:
                 # Catch any exception that might occur and print an error message
@@ -54,12 +55,15 @@ class OpenWebUI(LLMBase):
             exit(1)
         
         response_data = response.json()
-        print(response_data)
-        content = response_data['choices'][0]['message']['content']
+        #print(response_data)
+        try:
+            content = response_data['choices'][0]['message']['content']
+        except KeyError as e:
+            content = ""
         self.logger.info('Prompt: %s', prompt)
         self.logger.info('Response: %s', content)
         
-        print('LLM response:')
-        for key, value in response_data['choices'][0].items():
-            print(f'{key}: {value}')
+        #print('LLM response:')
+        #for key, value in response_data['choices'][0].items():
+            #print(f'{key}: {value}')
         return content

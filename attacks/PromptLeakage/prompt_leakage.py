@@ -1,4 +1,5 @@
 from tqdm import tqdm
+from models.hf_models import HFModels
 import torch
 import os
 import numpy as np
@@ -114,6 +115,9 @@ class PromptLeakage:
                     response = model.query_remote_model(None, messages=msgs)
                 elif isinstance(model, PeftCasualLM) or isinstance(model, FinetunedCasualLM):  # Load Huggingface model
                     response = model.query_model(None, messages=msgs)
+                    print(response)
+                elif isinstance(model, HFModels):
+                    response = model.query(prompt=msgs)
                 else:
                     raise NotImplementedError(f"Unknown model type {model}")
 
@@ -135,6 +139,9 @@ class PromptLeakage:
                             response = model.query_remote_model(None, messages=msgs)
                         elif isinstance(model, PeftCasualLM) or isinstance(model, FinetunedCasualLM):  # Hugging Face Model
                             response = model.query_model(None, msgs)
+                            print(response)
+                        elif isinstance(model, HFModels):
+                            response = model.query(prompt=msgs)
                         else:
                             raise NotImplementedError(f"Unknown model type {model}")
                 

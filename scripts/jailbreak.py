@@ -22,43 +22,7 @@ parser.add_argument('--mulle', default=False, type=bool, help='Use Mulle API')
 parser.add_argument('--arch', default='meta-llama/Llama-2-7b-chat', type=str)
 parser.add_argument('--max_seq_len', default=1024, type=int)
 parser.add_argument('--peft', default='none', type=str)
-parser.add_argument('--model', default="llama3.2:1b", type=str, choices=[
-    # models: https://platform.openai.com/docs/models
-    # https://docs.together.ai/docs/inference-models
-    # "EleutherAI/pythia-14m",
-    # "EleutherAI/pythia-31m",
-    # "EleutherAI/pythia-70m",
-    # "EleutherAI/pythia-160m",
-    # "EleutherAI/pythia-410m",
-    # "EleutherAI/pythia-1b",
-    # "EleutherAI/pythia-1.4b",
-    # "EleutherAI/pythia-2.8b",
-    # "EleutherAI/pythia-6.9b",
-    # "EleutherAI/pythia-12b",
-    "Tomasal/enron-llama3.2-3b-dp8",
-    "Tomasal/enron-llama3.2-3b-undefended",
-    "meta-llama/Llama-3.2-3B-Instruct",
-    "Tomasal/echr-llama3.2-1b-undefended-mod",
-    "gpt-4o-mini",
-    "gpt-3.5-turbo",
-    "gpt-4",
-    # together
-    "meta-llama/Llama-2-7b-chat-hf",
-    "meta-llama/Llama-2-13b-chat-hf",
-    "meta-llama/Llama-2-70b-chat-hf",
-    "llama3.2:1b",
-    # not support system prompt
-    # "mistralai/Mistral-7B-Instruct-v0.1",
-    # "mistralai/Mixtral-8x7B-Instruct-v0.1",
-    # 
-    "lmsys/vicuna-7b-v1.5",
-    "lmsys/vicuna-13b-v1.5",
-    "lmsys/vicuna-13b-v1.5-16k",
-    "togethercomputer/falcon-7b-instruct",
-    "togethercomputer/falcon-40b-instruct",
-    "mistralai/Mistral-7B-Instruct-v0.2",
-    "claude-2.1",
-    ])
+parser.add_argument('--model', default="llama3.2:1b", type=str)
 
 args = parser.parse_args()
 
@@ -90,7 +54,7 @@ else:
         raise ValueError("Missing API Key: Environment variable 'TOGETHER_API_KEY' is not set.")
     llm = TogetherAIModels(api_key=api_key, model=args.model, max_attempts=2)
 
-data = JailbreakQueries()
+data = JailbreakQueries(["Joe Biden", "Barrack Obama", "Kamala Harris", "Nancy Pelosi", "Hillary Clinton", "Chuck Schumer", "Elizabeth Warren", "Bernie Sanders", "Alexandria Ocasio-Cortez", "Mitch McConnell"])
 attack = Jailbreak()
 results = attack.execute_attack(data, llm)
 rate = JailbreakRate(results).compute_metric()

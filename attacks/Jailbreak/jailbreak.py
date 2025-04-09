@@ -201,7 +201,7 @@ class Jailbreak:
         jailbreak_prompts = self.prompts
         results = []
         for prompt in data.generate_queries():
-            print("prompt:", prompt)
+            # print("prompt:", prompt)
             for jailbreak_prompt in jailbreak_prompts:
                 query_prompt = self.get_combined_prompts(prompt, jailbreak_prompt)
                 if query_prompt != -1:

@@ -2,11 +2,11 @@
 from data.prompt_leakage import PromptLeakageSysPrompts
 # from models.togetherai import TogetherAIModels
 from attacks.PromptLeakage.prompt_leakage import PromptLeakage
+from models.ft_clm import FinetunedCasualLM, PeftCasualLM
 from models.hf_models import HFModels
 from models.chatgpt import ChatGPT
 from models.open_webui import OpenWebUI
 from models.togetherai import TogetherAIModels
-from models.ft_clm import PeftCasualLM, FinetunedCasualLM
 import argparse
 from collections import defaultdict
 import numpy as np
@@ -25,52 +25,7 @@ parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--num_test', default=10, type=int, help='num of sys prompts to extract.')
 parser.add_argument('--max_seq_len', default=1024, type=int)
 parser.add_argument('--data', default='blackfriday', type=str, choices=['blackfriday', 'GPTs', 'blackfriday/Academic', 'blackfriday/Business', 'blackfriday/Creative', 'blackfriday/Game', 'blackfriday/Job-Hunting', 'blackfriday/Marketing', 'blackfriday/Productivity-&-life-style', 'blackfriday/Programming'])
-parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str, choices=[
-    # models: https://platform.openai.com/docs/models
-    # https://docs.together.ai/docs/inference-models
-    # "EleutherAI/pythia-14m",
-    # "EleutherAI/pythia-31m",
-    # "EleutherAI/pythia-70m",
-    # "EleutherAI/pythia-160m",
-    # "EleutherAI/pythia-410m",
-    # "EleutherAI/pythia-1b",
-    # "EleutherAI/pythia-1.4b",
-    # "EleutherAI/pythia-2.8b",
-    # "EleutherAI/pythia-6.9b",
-    # "EleutherAI/pythia-12b",
-    # Fine-tuned models,
-    'meta-llama/Llama-3.2-3B-Instruct',
-    'Tomasal/enron-llama3.2-3b-undefended',
-    'Tomasal/enron-llama3.2-3b-dp8',
-    'Tomasal/echr-llama3.2-1b-undefended-mod',
-    'meta-llama/Llama3.2-1B',
-    'meta-llama/Llama3.2-1B-Instruct',
-     # Mulle
-    "llama3.2:1b",
-    "deepseek-r1:8b",
-    "deepseek-r1:1.5b",
-    # Open AI
-    "gpt-4o-mini",
-    "gpt-3.5-turbo",
-    "gpt-4",
-    "gpt-4o-mini",
-    # together
-    "meta-llama/Llama-2-7b-chat-hf",
-    "meta-llama/Llama-2-13b-chat-hf",
-    "meta-llama/Llama-2-70b-chat-hf",
-    "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-    # not support system prompt
-    # "mistralai/Mistral-7B-Instruct-v0.1",
-    # "mistralai/Mixtral-8x7B-Instruct-v0.1",
-    # 
-    "lmsys/vicuna-7b-v1.5",
-    "lmsys/vicuna-13b-v1.5",
-    "lmsys/vicuna-13b-v1.5-16k",
-    "togethercomputer/falcon-7b-instruct",
-    "togethercomputer/falcon-40b-instruct",
-    "mistralai/Mistral-7B-Instruct-v0.2",
-    "claude-2.1",
-    ])
+parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str)
 parser.add_argument('--defense', default=None, type=str, choices=[
     "no-repeat",
     "top-secret",
@@ -120,7 +75,7 @@ elif args.mulle:
         raise ValueError("Not able to retrieve 'MULLE_URL' from environment")
     url = f'{base_url}/api/chat/completions'
     llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=3, model_path=url)
-elif 'meta-llama' in args.model:
+elif True:
      llm = FinetunedCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
 else:
     print("Using TogetherAI API")

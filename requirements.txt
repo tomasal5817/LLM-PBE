@@ -10,3 +10,4 @@ accelerate
 torch
 torchvision
 torchaudio
+ollama

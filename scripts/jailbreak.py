@@ -7,6 +7,7 @@ from models.togetherai import TogetherAIModels
 from models.hf_models import HFModels
 from models.chatgpt import ChatGPT
 from models.open_webui import OpenWebUI
+from models.ollama import Ollama
 from models.togetherai import TogetherAIModels
 from models.ft_clm import PeftCasualLM, FinetunedCasualLM
 import argparse
@@ -19,12 +20,16 @@ from transformers import set_seed
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--mulle', default=False, type=bool, help='Use Mulle API')
+parser.add_argument('--ollama', default=False, type=bool, help='Use Ollama localy')
 parser.add_argument('--arch', default='meta-llama/Llama-2-7b-chat', type=str)
 parser.add_argument('--max_seq_len', default=1024, type=int)
 parser.add_argument('--peft', default='none', type=str)
 parser.add_argument('--model', default="llama3.2:1b", type=str)
 
 args = parser.parse_args()
+
+if args.mulle and args.ollama:
+     raise ValueError("Both mulle and ollama cannot be set to True")
 
 print(f"== model: {args.model} ==")
 if args.peft != 'none':
@@ -46,6 +51,8 @@ elif args.mulle:
     if not url:
         raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
     llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=2, model_path=url)
+elif args.ollama:
+    llm = Ollama(model=args.model, max_attempts=2)
 elif 'meta-llama' in args.model:
      llm = FinetunedCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
 else:

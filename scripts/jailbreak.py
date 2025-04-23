@@ -35,7 +35,7 @@ elif args.api == 'gpt':
     api_key = os.getenv("OPENAI_KEY")
     llm = ChatGPT(api_key=api_key, model=args.model, max_attempts=30, max_tokens=2048)
 elif args.api == 'hugging-face':
-    llm = HFModels(model_name=args.model, max_length=500)
+    llm = HFModels(model_name=args.model)
 elif args.api == 'claude':
     from models.claude import ClaudeLLM
     llm = ClaudeLLM(model=args.model)

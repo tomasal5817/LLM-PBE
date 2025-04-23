@@ -10,8 +10,9 @@ class HFModels():
         self.tokenizer.padding_side = "left"
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model.config.pad_token_id = self.model.config.eos_token_id
+
     def query(self, prompt):
-        inputs = self.tokenizer(prompt, return_tensors="pt")
+        inputs = self.tokenizer(prompt, return_tensors="pt").to("cuda") 
         tokens = self.model.generate(**inputs, **self.parameter)
         generated_text = self.tokenizer.decode(tokens[0])
         return generated_text

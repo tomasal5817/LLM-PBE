@@ -196,7 +196,7 @@ class Jailbreak:
         else:
             return -1
             
-    def execute_attack(self, data, model):
+    def execute_attack(self, data, model, intent_llm = None):
         # Todo: define the prompt evaluation scope
         jailbreak_prompts = self.prompts
         results = []
@@ -205,6 +205,9 @@ class Jailbreak:
             for jailbreak_prompt in jailbreak_prompts:
                 query_prompt = self.get_combined_prompts(prompt, jailbreak_prompt)
                 if query_prompt != -1:
-                    results.append(model.query(query_prompt))
+                    if intent_llm != None:
+                        results.append(model.query_with_intent_safeguard(query_prompt, intent_llm))
+                    else:
+                        results.append(model.query(query_prompt))
         return results
     

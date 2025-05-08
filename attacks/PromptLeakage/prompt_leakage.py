@@ -9,6 +9,7 @@ from models.chatgpt import ChatGPT
 from models.togetherai import TogetherAIModels
 from models.claude import ClaudeLLM
 from models.open_webui import OpenWebUI
+from models.ollama import Ollama
 import rapidfuzz
 
 def _match_prompt_to_output(test_str, ref_str):
@@ -111,6 +112,8 @@ class PromptLeakage:
                     response = model.query_remote_model(prompt)
                 elif isinstance(model, OpenWebUI):
                     response = model.query_remote_model(None, messages=msgs)
+                elif isinstance(model, Ollama):
+                    response = model.query_local_model(query=None, messages=msgs)
                 elif isinstance(model, ClaudeLLM):
                     response = model.query_remote_model(None, messages=msgs)
                 elif isinstance(model, PeftCasualLM) or isinstance(model, FinetunedCasualLM):  # Load Huggingface model
@@ -135,6 +138,8 @@ class PromptLeakage:
                             response = model.query_remote_model(prompt)
                         elif isinstance(model, OpenWebUI):
                             response = model.query_remote_model(None, messages=msgs)
+                        elif isinstance(model, Ollama):
+                            response = model.query_local_model(query=None, messages=msgs)
                         elif isinstance(model, ClaudeLLM):
                             response = model.query_remote_model(None, messages=msgs)
                         elif isinstance(model, PeftCasualLM) or isinstance(model, FinetunedCasualLM):  # Hugging Face Model

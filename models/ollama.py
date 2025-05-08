@@ -13,20 +13,20 @@ class Ollama(LLMBase):
         self.max_attempts=max_attempts
         self.delay_seconds=3
         self.tokenizer=None
+        self.counter = 0
 
     def load_model(self):
         pass
         
     def query_local_model(self, query, messages=None):
+        self.counter += 1
+        print(self.counter)
         n_attempt = 0
+        if messages is None:
+            messages = [{'role': 'user', 'content': query}]
         while n_attempt < self.max_attempts:
             try:
-                response: ChatResponse = chat(model=self.model, messages=[
-                    {
-                        'role': 'user',
-                        'content': query,
-                    },
-                ])
+                response: ChatResponse = chat(model=self.model, messages=messages)
                 return response['message']['content']
             except Exception as e:
                 print(f"An error occurred: {e}")

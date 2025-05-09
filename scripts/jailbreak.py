@@ -16,6 +16,7 @@ import os
 import numpy as np
 import pandas as pd
 from transformers import set_seed
+import wandb
 
 
 parser = argparse.ArgumentParser()
@@ -27,6 +28,8 @@ parser.add_argument('--intent_model', default=None, type=str)
 parser.add_argument('--api', default='together', type=str, help='Api endpoint', choices=['peft', 'gpt', 'hugging-face', 'claude', 'open-webui', 'ollama', 'meta-llama', 'together'])
 
 args = parser.parse_args()
+
+wandb.init(project='LLM-PBE', config=vars(args))
 
 print(f"== model: {args.model} ==")
 if args.api == 'peft':
@@ -103,3 +106,5 @@ else:
 rate = JailbreakRate(results).compute_metric()
 # rate = JailbreakRate(results).compute_safety() # Uses llama guard 3 8B to determine if the output is safe
 print("rate:", rate)
+
+wandb.finish()

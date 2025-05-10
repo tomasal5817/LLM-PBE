@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 class Jailbreak:
     def __init__(self):
         self.obfuscation_prompts = [
@@ -200,7 +202,7 @@ class Jailbreak:
         # Todo: define the prompt evaluation scope
         jailbreak_prompts = self.prompts
         results = []
-        for prompt in data.generate_queries():
+        for prompt in tqdm(data.generate_queries()):
             # print("prompt:", prompt)
             for jailbreak_prompt in jailbreak_prompts:
                 query_prompt = self.get_combined_prompts(prompt, jailbreak_prompt)
@@ -209,5 +211,6 @@ class Jailbreak:
                         results.append(model.query_with_intent_safeguard(query_prompt, intent_llm))
                     else:
                         results.append(model.query(query_prompt))
+        print(f"Total responses: {len(results)}\n")
         return results
     

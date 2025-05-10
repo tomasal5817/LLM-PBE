@@ -20,7 +20,7 @@ class Ollama(LLMBase):
         
     def query_local_model(self, query, messages=None):
         self.counter += 1
-        print(self.counter)
+        #print(self.counter)
         n_attempt = 0
         if messages is None:
             messages = [{'role': 'user', 'content': query}]

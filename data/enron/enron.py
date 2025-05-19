@@ -61,6 +61,10 @@ class CustomEnron(datasets.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager):
+        '''
+        Dataset split is set to match fine-tuned models in the project:
+        Assessing privacy vs. efficiency tradeoffs in open-source Large-Language Models
+        '''
 
         self.df = load_dataset("LLM-PBE/enron-email")
         print("done load data")
@@ -75,23 +79,23 @@ class CustomEnron(datasets.GeneratorBasedBuilder):
                 gen_kwargs={
                     "split": "train",
                     "start": 0.0,
-                    "end": 0.45  # default: 0.45
+                    "end": 0.80  
                 },
             ),
             datasets.SplitGenerator(  # use 10% of the training samples for test
                 name=datasets.Split.TEST,
                 gen_kwargs={
                     "split": "test",
-                    "start": 0.45,
-                    "end": 0.55  # default: 0.55
+                    "start": 0.80,
+                    "end": 0.90  
                 },
             ),
-            datasets.SplitGenerator(  # Use ~110k samples for shadow models
+            datasets.SplitGenerator(  
                 name=datasets.Split.VALIDATION,
                 gen_kwargs={
                     "split": "validation",
-                    "start": 0.55,
-                    "end": 1.0  # default: 1.0
+                    "start": 0.90,
+                    "end": 1.0  
                 },
             ),
         ]

@@ -175,6 +175,7 @@ class FinetunedCasualLM(LLMBase):
         Returns:
         - loss: The model's loss.
         """
+        print(type(self._lm))
         # TODO pass the args into here. The params should be set according to PII-leakage.
         if tokenized:
             input_ids = text
@@ -184,7 +185,7 @@ class FinetunedCasualLM(LLMBase):
             # output = self.model.generate(input_ids)
         
         # Implement the code to query the open-source model
-        input_ids = input_ids.to('cuda')
+        input_ids = input_ids.to('cpu')
         output = self._lm(
             input_ids=input_ids,
             labels=input_ids.clone(),
@@ -201,8 +202,25 @@ class FinetunedCasualLM(LLMBase):
         Returns:
         - PPL: The model's perpelexity.
         """
-        loss = self.evaluate(text, tokenized=tokenized)
-        return np.exp(loss)
+        enc = self.tokenizer(text, return_tensors='pt', truncation=True, max_length=self.max_seq_len)
+        input_ids = enc.input_ids.to(self.device)
+
+        if input_ids.shape[1] < 2:
+            print("[WARN] Skipping too short input")
+            return float("inf")  # skip
+
+        with torch.no_grad():
+            outputs = self._lm(input_ids, labels=input_ids)
+            loss = outputs.loss
+
+        if torch.isnan(loss) or torch.isinf(loss):
+            print(f"[ERROR] Loss is NaN or Inf for input: {text[:100]}...")
+            return float("inf")
+
+        return torch.exp(loss).item()
+        
+        # loss = self.evaluate(text, tokenized=tokenized)
+        # return np.exp(loss)
 
     def generate_neighbors(self, text, p=0.7, k=5, n=50):
         """

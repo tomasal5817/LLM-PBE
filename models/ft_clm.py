@@ -202,6 +202,7 @@ class FinetunedCasualLM(LLMBase):
         model_path = '/home/olitom/my-workspace/hf-models/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M-gguf/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M.gguf'
         llama_cpp_path = '/home/olitom/my-workspace/llama.cpp/bin/llama-perplexity'
         run_llama_cpp = f'{llama_cpp_path} -m {model_path} -f file.txt -c 32'
+        default_ppl = 10.0 # If llama.cpp is unable to get perplexety
 
         result = subprocess.run(run_llama_cpp, shell=True, capture_output=True, text=True)
 
@@ -219,8 +220,8 @@ class FinetunedCasualLM(LLMBase):
             return ppl_value
         else:
             print("PPL not found in output:")
-            print(output)
-            return 0.0
+            print(result.stderr)
+            return default_ppl
 
     def evaluate_ppl(self, text, tokenized=False):
         """
@@ -232,8 +233,10 @@ class FinetunedCasualLM(LLMBase):
         Returns:
         - PPL: The model's perpelexity.
         """
+        # if llama.cpp return loss
         loss = self.evaluate(text, tokenized=tokenized)
-        return np.exp(loss)
+        return loss
+        #return np.exp(loss)
 
     def generate_neighbors(self, text, p=0.7, k=5, n=50):
         """

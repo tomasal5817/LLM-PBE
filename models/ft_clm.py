@@ -205,7 +205,11 @@ class FinetunedCasualLM(LLMBase):
 
         result = subprocess.run(run_llama_cpp, shell=True, capture_output=True, text=True)
 
-        match = re.search(r"Final estimate: PPL = ([\d.]+) \+/- ([\d.]+)", result)
+        if result.returncode != 0:
+            print("Command failed:")
+            print(result.stderr)
+            return 0.0
+        
         if match:
             ppl_value = float(match.group(1))
             ppl_error = float(match.group(2))

@@ -174,8 +174,7 @@ class FinetunedCasualLM(LLMBase):
 
         Returns:
         - loss: The model's loss.
-        """
-        print(type(self._lm))
+        
         # TODO pass the args into here. The params should be set according to PII-leakage.
         if tokenized:
             input_ids = text
@@ -185,13 +184,39 @@ class FinetunedCasualLM(LLMBase):
             # output = self.model.generate(input_ids)
         
         # Implement the code to query the open-source model
-        input_ids = input_ids.to('cpu')
+        input_ids = input_ids.to('cuda')
         output = self._lm(
             input_ids=input_ids,
             labels=input_ids.clone(),
         )
         return output.loss.item()
+        """
+        # Call lama.cpp from here and return PPL
+        import re
+        import subprocess
+
+        # llama.cpp perplexety input file
+        with open("file.txt", "w") as f:
+            f.write(text)
         
+        model_path = '/home/olitom/my-workspace/hf-models/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M-gguf/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M.gguf'
+        llama_cpp_path = '/home/olitom/my-workspace/llama.cpp/bin/llama-perplexity'
+        run_llama_cpp = f'{llama_cpp_path} -m {model_path} -f file.txt -c 32'
+
+        result = subprocess.run(run_llama_cpp, shell=True, capture_output=True, text=True)
+
+        match = re.search(r"Final estimate: PPL = ([\d.]+) \+/- ([\d.]+)", result)
+        if match:
+            ppl_value = float(match.group(1))
+            ppl_error = float(match.group(2))
+            print(f"PPL: {ppl_value}, Error: {ppl_error}")
+        else:
+            print("PPL not found.")
+            return 0.0
+        
+        return ppl_value
+
+
     def evaluate_ppl(self, text, tokenized=False):
         """
         Evaluate an open-source model with a given text prompt.
@@ -202,25 +227,8 @@ class FinetunedCasualLM(LLMBase):
         Returns:
         - PPL: The model's perpelexity.
         """
-        enc = self.tokenizer(text, return_tensors='pt', truncation=True, max_length=self.max_seq_len)
-        input_ids = enc.input_ids.to(self.device)
-
-        if input_ids.shape[1] < 2:
-            print("[WARN] Skipping too short input")
-            return float("inf")  # skip
-
-        with torch.no_grad():
-            outputs = self._lm(input_ids, labels=input_ids)
-            loss = outputs.loss
-
-        if torch.isnan(loss) or torch.isinf(loss):
-            print(f"[ERROR] Loss is NaN or Inf for input: {text[:100]}...")
-            return float("inf")
-
-        return torch.exp(loss).item()
-        
-        # loss = self.evaluate(text, tokenized=tokenized)
-        # return np.exp(loss)
+        loss = self.evaluate(text, tokenized=tokenized)
+        return np.exp(loss)
 
     def generate_neighbors(self, text, p=0.7, k=5, n=50):
         """

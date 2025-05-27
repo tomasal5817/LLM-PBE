@@ -209,9 +209,8 @@ class FinetunedCasualLM(LLMBase):
             print("Command failed:")
             print(result.stderr)
             return 0.0
-        
-        output = result.stdout
-        match = re.search(r"Final estimate: PPL = ([\d.]+) \+/- ([\d.]+)", output)
+    
+        match = re.search(r"Final estimate: PPL = ([\d.]+) \+/- ([\d.]+)", result.stderr)
 
         if match:
             ppl_value = float(match.group(1))
@@ -222,7 +221,6 @@ class FinetunedCasualLM(LLMBase):
             print("PPL not found in output:")
             print(output)
             return 0.0
-
 
     def evaluate_ppl(self, text, tokenized=False):
         """

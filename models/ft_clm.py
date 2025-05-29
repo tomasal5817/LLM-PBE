@@ -1,6 +1,8 @@
 import transformers
 import torch
 import numpy as np
+import re
+import subprocess
 from heapq import nlargest
 from transformers import AutoModelForCausalLM, AutoTokenizer
 # from pii_leakage.utils.web import is_valid_url, download_and_unzip
@@ -191,25 +193,24 @@ class FinetunedCasualLM(LLMBase):
         )
         return output.loss.item()
         """
-        # Call lama.cpp from here and return PPL
-        import re
-        import subprocess
+        # Call llama.cpp from here and return PPL
 
         # llama.cpp perplexety input file
         with open("file.txt", "w") as f:
             f.write(text)
         
+        # TODO: Replace hardcoded paths with dynamic resolution
         model_path = '/home/olitom/my-workspace/hf-models/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M-gguf/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M.gguf'
         llama_cpp_path = '/home/olitom/my-workspace/llama.cpp/bin/llama-perplexity'
         run_llama_cpp = f'{llama_cpp_path} -m {model_path} -f file.txt -c 32'
-        default_ppl = 10.0 # If llama.cpp is unable to get perplexety
+        missing_perplexity_value = -1 # If llama.cpp is unable to get perplexity, negative perplexity will be discarded
 
         result = subprocess.run(run_llama_cpp, shell=True, capture_output=True, text=True)
 
         if result.returncode != 0:
             print("Command failed:")
             print(result.stderr)
-            return 0.0
+            return missing_perplexity_value
     
         match = re.search(r"Final estimate: PPL = ([\d.]+) \+/- ([\d.]+)", result.stderr)
 
@@ -219,9 +220,8 @@ class FinetunedCasualLM(LLMBase):
             print(f"PPL: {ppl_value}, Error: {ppl_error}")
             return ppl_value
         else:
-            print("PPL not found in output:")
-            print(result.stderr)
-            return default_ppl
+            print("PPL not found in output: return default value")
+            return missing_perplexity_value
 
     def evaluate_ppl(self, text, tokenized=False):
         """

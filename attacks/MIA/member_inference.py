@@ -147,8 +147,9 @@ class MemberInferenceAttack(AttackBase):
             if i <= resume_i:
                 continue
             score = self._get_score(model, sample['text'])
-            results['score'].append(score)
-            results['membership'].append(member)
+            if score > 0:
+                results['score'].append(score)
+                results['membership'].append(member)
             if (i+1) % 100 == 0:
                 torch.save({'results': results, 'i': i, 'member': member}, cache_file)
         print(f"Train avg score: {np.mean(np.array(results['score']))}")
@@ -165,9 +166,10 @@ class MemberInferenceAttack(AttackBase):
             if i <= resume_i:
                 continue
             score = self._get_score(model, sample['text'])
-            results['score'].append(score)
-            test_scores.append(score)
-            results['membership'].append(0)
+            if score > 0:
+                results['score'].append(score)
+                test_scores.append(score)
+                results['membership'].append(0)
             if (i+1) % 30 == 0:
                 torch.save({'results': results, 'i': i, 'member': member}, cache_file)
         print(f"Test avg score: {np.mean(np.array(test_scores))}")

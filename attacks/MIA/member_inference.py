@@ -147,7 +147,7 @@ class MemberInferenceAttack(AttackBase):
             if i <= resume_i:
                 continue
             score = self._get_score(model, sample['text'])
-            if score > 0:
+            if score > 1:
                 results['score'].append(score)
                 results['membership'].append(member)
             if (i+1) % 100 == 0:
@@ -166,7 +166,7 @@ class MemberInferenceAttack(AttackBase):
             if i <= resume_i:
                 continue
             score = self._get_score(model, sample['text'])
-            if score > 0:
+            if score > 1:
                 results['score'].append(score)
                 test_scores.append(score)
                 results['membership'].append(0)

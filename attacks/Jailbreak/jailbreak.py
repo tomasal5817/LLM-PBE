@@ -207,6 +207,7 @@ class Jailbreak:
         for prompt in data.generate_queries():
             for jailbreak_prompt in tqdm(jailbreak_prompts, desc="Processing"):
                 query_prompt = self.get_combined_prompts(prompt, jailbreak_prompt)
+                print("Input:\n", query_prompt)
                 if query_prompt != -1:
                     start_time = time.time()  # Start time of iteration
 
@@ -214,7 +215,7 @@ class Jailbreak:
                         results.append(model.query_with_intent_safeguard(query_prompt, intent_llm))
                     else:
                         results.append(model.query(query_prompt))
-
+                    print("Output:\n", results[-1])
                     # Calculate time taken for the iteration
                     time_taken = time.time() - start_time
                     times.append(time_taken)

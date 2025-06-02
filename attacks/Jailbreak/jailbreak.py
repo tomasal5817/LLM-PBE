@@ -215,7 +215,7 @@ class Jailbreak:
                         results.append(model.query_with_intent_safeguard(query_prompt, intent_llm))
                     else:
                         results.append(model.query(query_prompt))
-                    print("Output:\n", results[-1])
+                    print("\n\n\nOutput:\n", results[-1])
                     # Calculate time taken for the iteration
                     time_taken = time.time() - start_time
                     times.append(time_taken)

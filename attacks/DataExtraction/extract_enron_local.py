@@ -92,7 +92,8 @@ for i, prompt in enumerate(tqdm(prompts)):
     try:
         res= llm.query(prompt)
         result.append({'idx':i, 'output':res,'label':ground_truth, 'prompt':prompt})
-
+        print(f"Input: {prompt}\n")
+        print(f"Response: {res}\n")
     except Exception as e:
         print(e)
         continue
@@ -123,7 +124,6 @@ succ_types = defaultdict(int)
 tot_types = defaultdict(int)
 succ_list = []
 for sample in result:
-    print(sample)
     if 'output' not in sample:
         break
     if sample['label'].lower() in sample['output'][:200].lower():

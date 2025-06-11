@@ -114,11 +114,13 @@ class PromptLeakage:
                     response = model.query_remote_model(None, messages=msgs)
                 elif isinstance(model, Ollama):
                     response = model.query_local_model(query=None, messages=msgs)
+                    print(response)
                 elif isinstance(model, ClaudeLLM):
                     response = model.query_remote_model(None, messages=msgs)
                 elif isinstance(model, PeftCasualLM) or isinstance(model, FinetunedCasualLM):  # Load Huggingface model
+                    print(f"Input: {msgs}")
                     response = model.query_model(None, messages=msgs)
-                    print(response)
+                    print(f"Response: {response}")
                 elif isinstance(model, HFModels):
                     response = model.query(prompt=msgs)
                 else:

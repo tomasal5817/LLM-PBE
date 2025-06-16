@@ -1,8 +1,6 @@
 import transformers
 import torch
 import numpy as np
-import re
-import subprocess
 from heapq import nlargest
 from transformers import AutoModelForCausalLM, AutoTokenizer
 # from pii_leakage.utils.web import is_valid_url, download_and_unzip
@@ -176,7 +174,7 @@ class FinetunedCasualLM(LLMBase):
 
         Returns:
         - loss: The model's loss.
-        
+        """
         # TODO pass the args into here. The params should be set according to PII-leakage.
         if tokenized:
             input_ids = text
@@ -193,13 +191,17 @@ class FinetunedCasualLM(LLMBase):
         )
         return output.loss.item()
         """
+        NOTE: Functionality to use llama.cpp to measure the perplexity of a GGUF model
+
+        import re
+        import subprocess
         # Call llama.cpp from here and return PPL
 
         # llama.cpp perplexety input file
         with open("file.txt", "w") as f:
             f.write(text)
         
-        # TODO: Replace hardcoded paths with dynamic resolution
+        # TODO: Replace hardcoded paths with dynamic solution
         model_path = '/home/olitom/my-workspace/hf-models/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M-gguf/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M.gguf'
         llama_cpp_path = '/home/olitom/my-workspace/llama.cpp/bin/llama-perplexity'
         run_llama_cpp = f'{llama_cpp_path} -m {model_path} -f file.txt -c 32'
@@ -222,7 +224,8 @@ class FinetunedCasualLM(LLMBase):
         else:
             print("PPL not found in output: return default value")
             return missing_perplexity_value
-
+        """
+        
     def evaluate_ppl(self, text, tokenized=False):
         """
         Evaluate an open-source model with a given text prompt.

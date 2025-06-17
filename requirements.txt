@@ -7,7 +7,9 @@ anthropic==0.15.1
 datasets>=2.20.0
 wandb
 accelerate
-torch
-torchvision
-torchaudio
+torch==1.13.1
+torchvision==0.14.1
+torchaudio==0.13.1
+tqdm
 ollama
+pandas

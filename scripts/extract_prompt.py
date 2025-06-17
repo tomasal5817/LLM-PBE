@@ -19,15 +19,13 @@ from transformers import set_seed
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--mulle', default=False, type=bool, help='Use Mulle API')
 parser.add_argument('--arch', default='meta-llama/Llama-2-7b-chat', type=str)
-parser.add_argument('--peft', default='lora', type=str)
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--num_test', default=10, type=int, help='num of sys prompts to extract.')
 parser.add_argument('--max_seq_len', default=1024, type=int)
 parser.add_argument('--data', default='blackfriday', type=str, choices=['blackfriday', 'GPTs', 'blackfriday/Academic', 'blackfriday/Business', 'blackfriday/Creative', 'blackfriday/Game', 'blackfriday/Job-Hunting', 'blackfriday/Marketing', 'blackfriday/Productivity-&-life-style', 'blackfriday/Programming'])
 parser.add_argument('--model', default="meta-llama/Llama-2-7b-chat-hf", type=str)
-parser.add_argument('--api', default='together', type=str, help='Api endpoint', choices=['peft', 'gpt', 'hugging-face', 'claude', 'open-webui', 'ollama', 'meta-llama', 'together'])
+parser.add_argument('--api', default='ollama', type=str, help='Api endpoint', choices=['peft', 'gpt', 'hugging-face', 'claude', 'open-webui', 'ollama', 'meta-llama', 'together'])
 parser.add_argument('--defense', default=None, type=str, choices=[
     "no-repeat",
     "top-secret",
@@ -65,13 +63,13 @@ elif args.api == 'claude':
     from models.claude import ClaudeLLM
     llm = ClaudeLLM(model=args.model)
 elif args.api == 'open-webui':
-    api_key = os.getenv("MULLE_KEY")
-    base_url = os.getenv("MULLE_URL")
+    api_key = os.getenv("OPENWEBUI_KEY")
+    base_url = os.getenv("OPENWEBUI_URL")
     url = f'{base_url}/api/chat/completions'
     if not api_key:
-        raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")
+        raise ValueError("Missing API Key: Environment variable 'OPENWEBUI_KEY' is not set.")
     if not url:
-        raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
+        raise ValueError("Missing URL: Environment variable 'OPENWEBUI_URL' is not set.")
     llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=2, model_path=url)
 elif args.api == 'ollama':
     llm = Ollama(model=args.model, max_attempts=2)

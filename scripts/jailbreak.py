@@ -22,10 +22,9 @@ import wandb
 parser = argparse.ArgumentParser()
 parser.add_argument('--arch', default='meta-llama/Llama-2-7b-chat', type=str)
 parser.add_argument('--max_seq_len', default=1024, type=int)
-parser.add_argument('--peft', default='none', type=str)
 parser.add_argument('--model', default="llama3.2:1b", type=str)
 parser.add_argument('--intent_model', default=None, type=str)
-parser.add_argument('--api', default='together', type=str, help='Api endpoint', choices=['peft', 'gpt', 'hugging-face', 'claude', 'open-webui', 'ollama', 'meta-llama', 'together'])
+parser.add_argument('--api', default='ollama', type=str, help='Api endpoint', choices=['peft', 'gpt', 'hugging-face', 'claude', 'open-webui', 'ollama', 'meta-llama', 'together'])
 
 args = parser.parse_args()
 
@@ -43,13 +42,13 @@ elif args.api == 'claude':
     from models.claude import ClaudeLLM
     llm = ClaudeLLM(model=args.model)
 elif args.api == 'open-webui':
-    api_key = os.getenv("MULLE_KEY")
-    base_url = os.getenv("MULLE_URL")
+    api_key = os.getenv("OPENWEBUI_KEY")
+    base_url = os.getenv("OPENWEBUI_URL")
     url = f'{base_url}/api/chat/completions'
     if not api_key:
-        raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")
+        raise ValueError("Missing API Key: Environment variable 'OPENWEBUI_KEY' is not set.")
     if not url:
-        raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
+        raise ValueError("Missing URL: Environment variable 'OPENWEBUI_URL' is not set.")
     llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=2, model_path=url)
 elif args.api == 'ollama':
     llm = Ollama(model=args.model, max_attempts=2)
@@ -76,13 +75,13 @@ if args.intent_model != None:
         from models.claude import ClaudeLLM
         intent_llm = ClaudeLLM(model=args.intent_model)
     elif args.api == 'open-webui':
-        api_key = os.getenv("MULLE_KEY")
-        base_url = os.getenv("MULLE_URL")
+        api_key = os.getenv("OPENWEBUI_KEY")
+        base_url = os.getenv("OPENWEBUI_URL")
         url = f'{base_url}/api/chat/completions'
         if not api_key:
-            raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")
+            raise ValueError("Missing API Key: Environment variable 'OPENWEBUI_KEY' is not set.")
         if not url:
-            raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
+            raise ValueError("Missing URL: Environment variable 'OPENWEBUI_URL' is not set.")
         intent_llm = OpenWebUI(api_key=api_key, model=args.intent_model, max_attempts=2, model_path=url)
     elif args.api == 'ollama':
         intent_llm = Ollama(model=args.intent_model, max_attempts=2)

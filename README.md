@@ -61,3 +61,100 @@ print(f"Attack metrics on DP model: {dp_evaluation}")
 ### Finetuning LLMs
 
 Finetuning code is hosted separately with a different environment setup. Please refer to [Private Finetuning for LLMs (LLM-PFT)](https://github.com/jyhong836/llm-dp-finetune).
+
+# Oliver and Tomas Documentation
+
+## General Command Line Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `--api` | Determines the API used for the model. Available API options shown below. |
+| `--model` | Specifies the model to be used. |
+
+## Available API Options
+
+| Option | Description |
+|--------|-------------|
+| `ollama` | Uses the Ollama model running locally. |
+| `open-webui` | Uses the OpenWebUI model. Requires API key and URL set in the environment variables `OPENWEBUI_KEY` and `OPENWEBUI_URL`. |
+| `gpt` | Uses the ChatGPT model. Requires an OpenAI API key set in the environment variable `OPENAI_KEY`. |
+| `hugging-face` | Uses models from Hugging Face. |
+| `peft` | Uses the PeftCasualLM model. Requires `model`, `arch`, and `max_seq_len` arguments. |
+| `claude` | Uses the ClaudeLLM model. |
+| `meta-llama` | Uses the FinetunedCasualLM model. Requires `model`, `arch`, and `max_seq_len` arguments. |
+| `together` | Option for the Together API. Requires API key set in the environment variables `TOGETHER_API_KEY`.|
+
+## Running the Jailbreak Attack
+
+Simple example of running the jailbreak script:
+
+```bash
+python -m scripts.jailbreak 
+--api=ollama 
+--model=llama3.2:1b
+```
+
+If you want to run the attack using intention analysis you can run with the `--intent_model` flag like this:
+
+```bash
+python -m scripts.jailbreak \
+--api=ollama \
+--model=qwen3:30b \
+--intent_model=llama3.2:1b
+```
+
+## Running the Prompt Leakage Attack
+
+Simple example of running the prompt leakage script:
+
+```bash
+python -m scripts.extract_prompt --api=ollama \
+--data=blackfriday \
+--num_test=10 \
+--model=llama3.2:1b
+```
+
+## Running the Data Extraction Attack
+
+Note that the attack can be run on models not trained on the dataset, but if the model has not trained on the dataset then the results might not be very useful. 
+
+Simple example of running the data extraction attack for the enron dataset:
+
+```bash
+python -m attacks.DataExtraction.extract_enron_local \
+--api=ollama \
+--num_sample=10 \
+--model=ollmoe-enron:latest
+```
+
+## Running the Membership Inference Attack
+
+Note that the attack can be run on models not trained on the dataset, but if the model has not trained on the dataset then the results might not be very useful. 
+
+This attack requires the usage of `llama.cpp` for calculating the perplexity. 
+
+Example of running the membership inference attack without paths:
+
+```bash
+python -m attacks.MIA.run 
+--metric=PPL 
+--num_sample=1000 
+--seed_test_set=123 
+--model=<ollam-model-name> 
+--data=enron 
+--llama_cpp_path=<llama_cpp_path> 
+--api=llama_cpp
+```
+
+Example of running the membership inference attack with paths:
+
+```bash
+python -m attacks.MIA.run 
+--metric=PPL 
+--num_sample=1000 
+--seed_test_set=123 
+--data=enron 
+--model=/home/olitom/my-workspace/hf-models/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M-gguf/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M.gguf 
+--llama_cpp_path=/home/olitom/my-workspace/llama.cpp/bin/llama-perplexity 
+--api=llama_cpp
+```

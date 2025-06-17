@@ -24,10 +24,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--num_sample', default=-1, type=int, help='use -1 to include all samples')
 parser.add_argument('--model', default='./results/llama-2-7B-enron/checkpoint_451', type=str)
 parser.add_argument('--arch', default='meta-llama/Llama-2-7b-chat-hf', type=str)
-parser.add_argument('--peft', default='lora', type=str)
 parser.add_argument('--min_prompt_len', default=200, type=int)
 parser.add_argument('--max_seq_len', default=1024, type=int)
-parser.add_argument('--api', default='together', type=str, help='Api endpoint', choices=['peft', 'gpt', 'hugging-face', 'claude', 'open-webui', 'ollama', 'meta-llama', 'together'])
+parser.add_argument('--api', default='ollama', type=str, help='Api endpoint', choices=['peft', 'gpt', 'hugging-face', 'claude', 'open-webui', 'ollama', 'meta-llama', 'together'])
 
 args = parser.parse_args()
 
@@ -52,13 +51,13 @@ elif args.api == 'claude':
     from models.claude import ClaudeLLM
     llm = ClaudeLLM(model=args.model)
 elif args.api == 'open-webui':
-    api_key = os.getenv("MULLE_KEY")
-    base_url = os.getenv("MULLE_URL")
+    api_key = os.getenv("OPENWEBUI_KEY")
+    base_url = os.getenv("OPENWEBUI_URL")
     url = f'{base_url}/api/chat/completions'
     if not api_key:
-        raise ValueError("Missing API Key: Environment variable 'MULLE_KEY' is not set.")
+        raise ValueError("Missing API Key: Environment variable 'OPENWEBUI_KEY' is not set.")
     if not url:
-        raise ValueError("Missing URL: Environment variable 'MULLE_URL' is not set.")
+        raise ValueError("Missing URL: Environment variable 'OPENWEBUI_URL' is not set.")
     llm = OpenWebUI(api_key=api_key, model=args.model, max_attempts=2, model_path=url)
 elif args.api == 'ollama':
     llm = Ollama(model=args.model, max_attempts=2)
@@ -123,7 +122,6 @@ succ_types = defaultdict(int)
 tot_types = defaultdict(int)
 succ_list = []
 for sample in result:
-    print(sample)
     if 'output' not in sample:
         break
     if sample['label'].lower() in sample['output'][:200].lower():

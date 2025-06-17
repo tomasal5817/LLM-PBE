@@ -1,4 +1,5 @@
 from models.ft_clm import PeftCasualLM, FinetunedCasualLM
+from models.llama_cpp import Llama_cpp 
 from attacks.MIA.member_inference import MemberInferenceAttack, MIAMetric
 from transformers import BertForMaskedLM, BertTokenizer
 import argparse
@@ -22,6 +23,11 @@ parser.add_argument('--max_seq_len', default=1024, type=int)
 parser.add_argument('--n_neighbor', default=50, type=int, help='num of neighbors in neighbor attack')
 
 parser.add_argument('--seed_test_set', default=None, type=int, help='whether to seed the selection of test set.')
+
+#parser.add_argument('--model_path', defaul=None, type=str, help='Path to GGUF model')
+parser.add_argument('--llama_cpp_path', defaul=None, type=str, help='Path to llama.cpp')
+parser.add_argument('--api', default='together', type=str, help='Api endpoint', choices=['peft', 'gpt', 'hugging-face', 'claude', 'open-webui', 'ollama', 'meta-llama', 'together', 'llama_cpp'])
+
 args = parser.parse_args()
 
 args.run_name = f"{args.metric}_{args.num_sample}"
@@ -57,7 +63,13 @@ if args.num_sample > 0 and args.num_sample < len(test_set):
     else:
         idxs = np.random.RandomState(args.seed_test_set).choice(len(test_set), args.num_sample, replace=False)
     test_set = test_set.select(idxs)
-if args.peft == 'none':
+
+if args.api == 'llama_cpp': # Run test localy on llama.cpp
+    if args.llama_cpp_pathNone is not None and args.model is not None:
+        llm = Llama_cpp(model=args.model, llama_cpp=args.llama_cpp)
+    else:
+        raise ValueError("You must specify --llama_cpp_path and --model")
+elif args.peft == 'none':
     llm = FinetunedCasualLM(model_path=args.model, arch=args.arch, max_seq_len=args.max_seq_len)
 else:
     # Replace api_key with your own API key

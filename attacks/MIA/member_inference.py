@@ -120,7 +120,8 @@ class MemberInferenceAttack(AttackBase):
         Returns:
         - scores: the scores of membership.
         """
-        model._lm.eval()
+        if isinstance(model, FinetunedCasualLM):
+            model._lm.eval()
         if resume:
             if os.path.exists(cache_file):
                 print(f"resume from {cache_file}")

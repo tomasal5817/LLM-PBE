@@ -238,8 +238,7 @@ class FinetunedCasualLM(LLMBase):
         """
         # if llama.cpp return loss
         loss = self.evaluate(text, tokenized=tokenized)
-        return loss
-        #return np.exp(loss)
+        return np.exp(loss)
 
     def generate_neighbors(self, text, p=0.7, k=5, n=50):
         """

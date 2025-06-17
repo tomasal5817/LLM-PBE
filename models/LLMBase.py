@@ -120,11 +120,11 @@ class LLMBase:
             {"role": "user", "content": prompt}
         ]
 
-        response1= intent_model.query(None, messages=messages)
+        response1= intent_model.query(None, text=messages)
 
         messages.append({"role": "assistant", "content": response1})
         messages.append({"role": "user", "content": CT_PROMPT})
 
-        response2= self.query(None, messages=messages)
+        response2= self.query(None, text=messages)
 
         return response2

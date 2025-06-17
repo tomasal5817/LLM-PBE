@@ -140,9 +140,9 @@ python -m attacks.MIA.run
 --metric=PPL 
 --num_sample=1000 
 --seed_test_set=123 
---model=<ollam-model-name> 
+--model=<ollama-model-name> 
 --data=enron 
 --llama_cpp_path=<llama_cpp_path> 
 --api=llama_cpp
 ```
-Replace `<ollam-model-name>` with the name of your local GGUF model, and `<llama_cpp_path>` with the path to your local **llama.cpp** directory.
+Replace `<ollama-model-name>` with the name of your local GGUF model, and `<llama_cpp_path>` with the path to your local **llama.cpp** directory.

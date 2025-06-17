@@ -6,10 +6,7 @@ from models.LLMBase import LLMBase
 class Llama_cpp(LLMBase):
     def __init__(self,api_key=None, model=None, max_attempts=3, llama_cpp_path=None, model_path=None):
         super().__init__(api_key=api_key, model_path=model_path)
-        try:
-            show(model)
-        except Exception as e:
-            raise Exception(f"Ollama or Ollama-model is not available {e}")
+        
         self.model=model
         self.max_attempts=max_attempts
         self.delay_seconds=3

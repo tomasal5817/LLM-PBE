@@ -65,7 +65,7 @@ if args.num_sample > 0 and args.num_sample < len(test_set):
     test_set = test_set.select(idxs)
 
 if args.api == 'llama_cpp': # Run test localy on llama.cpp
-    if args.llama_cpp_pathNone is not None and args.model is not None:
+    if args.llama_cpp_path is not None and args.model is not None:
         llm = Llama_cpp(model=args.model, llama_cpp=args.llama_cpp)
     else:
         raise ValueError("You must specify --llama_cpp_path and --model")

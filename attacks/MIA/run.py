@@ -25,7 +25,7 @@ parser.add_argument('--n_neighbor', default=50, type=int, help='num of neighbors
 parser.add_argument('--seed_test_set', default=None, type=int, help='whether to seed the selection of test set.')
 
 #parser.add_argument('--model_path', defaul=None, type=str, help='Path to GGUF model')
-parser.add_argument('--llama_cpp_path', defaul=None, type=str, help='Path to llama.cpp')
+parser.add_argument('--llama_cpp_path', default=None, type=str, help='Path to llama.cpp')
 parser.add_argument('--api', default='together', type=str, help='Api endpoint', choices=['peft', 'gpt', 'hugging-face', 'claude', 'open-webui', 'ollama', 'meta-llama', 'together', 'llama_cpp'])
 
 args = parser.parse_args()

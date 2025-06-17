@@ -133,7 +133,7 @@ Note that the attack can be run on models not trained on the dataset, but if the
 
 This attack requires the usage of `llama.cpp` for calculating the perplexity. 
 
-Example of running the membership inference attack without paths:
+Example of running the membership inference attack:
 
 ```bash
 python -m attacks.MIA.run 
@@ -145,16 +145,4 @@ python -m attacks.MIA.run
 --llama_cpp_path=<llama_cpp_path> 
 --api=llama_cpp
 ```
-
-Example of running the membership inference attack with paths:
-
-```bash
-python -m attacks.MIA.run 
---metric=PPL 
---num_sample=1000 
---seed_test_set=123 
---data=enron 
---model=/home/olitom/my-workspace/hf-models/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M-gguf/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M.gguf 
---llama_cpp_path=/home/olitom/my-workspace/llama.cpp/bin/llama-perplexity 
---api=llama_cpp
-```
+Replace `<ollam-model-name>` with the name of your local GGUF model, and `<llama_cpp_path>` with the path to your local **llama.cpp** directory.

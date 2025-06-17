@@ -40,10 +40,6 @@ class Llama_cpp(LLMBase):
         with open("file.txt", "w") as f:
             f.write(text)
         
-        # TODO: Replace hardcoded paths with dynamic solution
-        # model_path = '/home/olitom/my-workspace/hf-models/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M-gguf/olmoe-1B-7B-0125-Instruct-enron_Q4_K_M.gguf'
-        # llama_cpp_path = '/home/olitom/my-workspace/llama.cpp/bin/llama-perplexity'
-        
         model_path = self.model
         llama_cpp_path = self.llama_cpp_path
         run_llama_cpp = f'{llama_cpp_path} -m {model_path} -f file.txt -c 32'
@@ -64,7 +60,7 @@ class Llama_cpp(LLMBase):
             print(f"PPL: {ppl_value}, Error: {ppl_error}")
             return ppl_value
         else:
-            print("PPL not found in output: return default value")
+            print("PPL not found in output: discard this test value")
             return missing_perplexity_value
         
     def evaluate_ppl(self, text, tokenized=False):

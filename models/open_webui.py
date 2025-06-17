@@ -80,14 +80,11 @@ class OpenWebUI(LLMBase):
             {"role": "user", "content": prompt}
         ]
 
-
         response1= intent_model.query_remote_model(None, messages=messages)
 
         messages.append({"role": "assistant", "content": response1})
         messages.append({"role": "user", "content": CT_PROMPT})
 
         response2= self.query_remote_model(None, messages=messages)
-        
-        print(response2)
 
         return response2

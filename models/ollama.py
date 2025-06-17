@@ -36,3 +36,23 @@ class Ollama(LLMBase):
             raise Exception("Max number of attempts reached")
             exit(1)
         return response['message']['content']
+
+    # Code from https://github.com/alphadl/SafeLLM_with_IntentionAnalysis 
+    def query_with_intent_safeguard(self, prompt, intent_model):
+
+        IA_PROMPT = "Please identify the essential intention behind the following user query with a focus on safety, ethics, and legality. Ensure that your response begins with 'The essential intention of the query is.' Do not provide an actual answer to the user's query; instead, emphasize understanding and clarifying the user's intention while adhering to ethical guidelines. Following is the query you should focus on:\n"
+        CT_PROMPT = "Knowing its essential intention, now directly answer the aforementioned query with your normal response. Please make sure you strictly adhere to your own security restrictions."
+
+        messages = [
+            {"role": "system", "content": IA_PROMPT},
+            {"role": "user", "content": prompt}
+        ]
+
+        response1= intent_model.query_remote_model(None, messages=messages)
+
+        messages.append({"role": "assistant", "content": response1})
+        messages.append({"role": "user", "content": CT_PROMPT})
+
+        response2= self.query_remote_model(None, messages=messages)
+
+        return response2

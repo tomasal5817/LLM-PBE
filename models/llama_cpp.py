@@ -4,7 +4,7 @@ import subprocess
 from models.LLMBase import LLMBase
 
 class Llama_cpp(LLMBase):
-    def __init__(self,api_key=None, model=None, max_attempts=3, llama_ccp_path=None, model_path=None):
+    def __init__(self,api_key=None, model=None, max_attempts=3, llama_cpp_path=None, model_path=None):
         super().__init__(api_key=api_key, model_path=model_path)
         try:
             show(model)
@@ -15,7 +15,7 @@ class Llama_cpp(LLMBase):
         self.delay_seconds=3
         self.tokenizer=None
         self.counter = 0
-        self.llama_ccp_path = llama_ccp_path
+        self.llama_cpp_path = llama_cpp_path
 
     def load_model(self):
         pass
